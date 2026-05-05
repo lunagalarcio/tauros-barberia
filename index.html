@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tauros Barbería | Citas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="logo">TAUROS</div>
+      <a href="admin.html" class="admin-link">Panel Admin</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Tauros</h1>
+    <p class="tagline">Donde la tradición meets el estilo</p>
+    <a href="#sillas" class="btn-primary">Agenda tu cita</a>
+  </section>
+
+  <!-- Sillas Section -->
+  <section class="sillas-section" id="sillas">
+    <div class="container">
+      <h2 class="section-title">Elige a tu barbero</h2>
+      <div class="sillas-grid" id="sillas-container">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Cargando...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wizard Section -->
+  <section class="wizard-section" id="wizard">
+    <div class="container">
+      <div class="wizard-panel">
+        <!-- Stepper -->
+        <div class="stepper">
+          <div class="step active" id="step-indicator-1">
+            <div class="step-circle">1</div>
+            <span class="step-label">Barbero</span>
+          </div>
+          <div class="step" id="step-indicator-2">
+            <div class="step-circle">2</div>
+            <span class="step-label">Fecha</span>
+          </div>
+          <div class="step" id="step-indicator-3">
+            <div class="step-circle">3</div>
+            <span class="step-label">Hora</span>
+          </div>
+          <div class="step" id="step-indicator-4">
+            <div class="step-circle">4</div>
+            <span class="step-label">Confirmar</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Sillas (already shown above) -->
+        <div id="step-1" class="hidden">
+          <p style="text-align: center; color: var(--text-muted);">Selecciona un barbero de la sección anterior</p>
+        </div>
+
+        <!-- Step 2: Calendario -->
+        <div id="step-2" class="hidden">
+          <h3 style="color: var(--accent); margin-bottom: 20px; text-align: center;">Selecciona una fecha</h3>
+          <div id="calendario-container"></div>
+          <button class="btn-back" onclick="mostrarPaso(1)">Volver</button>
+        </div>
+
+        <!-- Step 3: Slots -->
+        <div id="step-3" class="hidden">
+          <h3 style="color: var(--accent); margin-bottom: 20px; text-align: center;">Selecciona un horario</h3>
+          <div id="slots-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Cargando...</p>
+            </div>
+          </div>
+          <button class="btn-back" onclick="volverPaso(2)">Volver</button>
+        </div>
+
+        <!-- Step 4: Form -->
+        <div id="step-4" class="hidden">
+          <div id="form-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Cargando formulario...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5: Confirmación -->
+        <div id="step-5" class="hidden">
+          <div id="confirmacion-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Procesando...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>Av. Principal 123, Centro</p>
+      <p>(55) 1234-5678</p>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-whatsapp"></i></a>
+      </div>
+      <p style="margin-top: 20px; font-size: 0.8rem;">&copy; 2026 Tauros Barbería. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/client.js"></script>
+</body>
+</html>
