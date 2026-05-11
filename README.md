@@ -105,3 +105,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 - **Iconos**: Font Awesome 6
 - **Fuentes**: Playfair Display + Poppins (Google Fonts)
 - **Despliegue**: Vercel (estático)
+
+## Admin
+- **Password**: tauros2024
