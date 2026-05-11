@@ -537,6 +537,21 @@ function initClient() {
   cargarSillas().then(renderSillas);
 }
 
+function playVideo() {
+  const placeholder = document.getElementById('video-placeholder');
+  const container = document.getElementById('video-container');
+  const iframe = document.getElementById('video-iframe');
+
+  iframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1';
+  placeholder.style.display = 'none';
+  container.style.display = 'block';
+}
+
+function toggleNav() {
+  const nav = document.querySelector('.nav-menu');
+  nav.classList.toggle('active');
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initClient);
 } else {

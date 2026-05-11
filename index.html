@@ -17,7 +17,19 @@
   <header class="header">
     <div class="container">
       <a href="index.html" class="logo">TAUROS</a>
-      <a href="admin.html" class="admin-link"><i class="fas fa-lock"></i> Admin</a>
+      <nav class="nav-menu">
+        <a href="#servicios">Servicios</a>
+        <a href="#porque">Nosotros</a>
+        <a href="#sillas">Barberos</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <div class="header-actions">
+        <a href="#sillas" class="btn-header">Agendar cita</a>
+        <a href="admin.html" class="admin-link"><i class="fas fa-lock"></i></a>
+      </div>
+      <button class="nav-toggle" onclick="toggleNav()">
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
   </header>
 
@@ -36,65 +48,74 @@
     <div class="container">
       <h2 class="section-title">Nuestros Servicios</h2>
       <p class="section-subtitle">Cortes profesionales con la mejor calidad</p>
-      <div class="servicios-grid">
-        <div class="servicio-card">
-          <div class="servicio-icon"><i class="fas fa-cut"></i></div>
-          <h3>Corte Clásico</h3>
-          <p class="servicio-desc">Corte tradicional con acabado perfecto, incluye lavado y secado</p>
-          <div class="servicio-precio">
-            <span class="precio-amount">$280</span>
-            <span class="precio-time"><i class="far fa-clock"></i> 45 min</span>
+      <div class="servicios-showcase">
+        <div class="servicio-large">
+          <div class="servicio-image-wrapper">
+            <img src="https://i.pinimg.com/736x/1a/a3/46/1aa346c0403244604a46c9f7fe6c2d32.jpg" alt="Corte moderno">
+            <div class="servicio-overlay">
+              <span class="servicio-tag">Más vendido</span>
+            </div>
+          </div>
+          <div class="servicio-content">
+            <div class="servicio-meta">
+              <span class="servicio-duration"><i class="far fa-clock"></i> 60 min</span>
+            </div>
+            <h3>Corte + Barba</h3>
+            <p>Combinación perfecta para un look completo y renovado. Incluye lavado, corte personalizado y arreglo de barba con productos premium.</p>
+            <div class="servicio-footer">
+              <span class="servicio-price">$420</span>
+              <a href="#wizard" class="servicio-btn">Agendar</a>
+            </div>
           </div>
         </div>
 
-        <div class="servicio-card">
-          <div class="servicio-icon"><i class="fas fa-user"></i></div>
-          <h3>Corte Moderno</h3>
-          <p class="servicio-desc">Estilos contemporáneos, fade, skin, diseños personalizados</p>
-          <div class="servicio-precio">
-            <span class="precio-amount">$320</span>
-            <span class="precio-time"><i class="far fa-clock"></i> 50 min</span>
+        <div class="servicios-grid-right">
+          <div class="servicio-card-img">
+            <div class="servicio-img-wrapper">
+              <img src="https://i.pinimg.com/736x/05/9c/3e/059c3edf62504b0f94dcd99a50347cd9.jpg" alt="Corte fade">
+              <div class="servicio-img-price">$320</div>
+            </div>
+            <div class="servicio-card-info">
+              <h4>Corte Moderno</h4>
+              <p>Fade, skin, diseños personalizados</p>
+              <span class="servicio-card-time"><i class="far fa-clock"></i> 50 min</span>
+            </div>
           </div>
-        </div>
 
-        <div class="servicio-card">
-          <div class="servicio-icon"><i class="fas fa-star"></i></div>
-          <h3>Barba Completa</h3>
-          <p class="servicio-desc">Arreglo de barba con toalla caliente, aceite y acabado</p>
-          <div class="servicio-precio">
-            <span class="precio-amount">$180</span>
-            <span class="precio-time"><i class="far fa-clock"></i> 30 min</span>
+          <div class="servicio-card-img">
+            <div class="servicio-img-wrapper">
+              <img src="https://i.pinimg.com/736x/ef/00/3a/ef003a7944fd524bd5fef66963e676ac.jpg" alt="Barba">
+              <div class="servicio-img-price">$180</div>
+            </div>
+            <div class="servicio-card-info">
+              <h4>Barba Completa</h4>
+              <p>Arreglo con toalla caliente y acabado</p>
+              <span class="servicio-card-time"><i class="far fa-clock"></i> 30 min</span>
+            </div>
           </div>
-        </div>
 
-        <div class="servicio-card">
-          <div class="servicio-icon"><i class="fas fa-crown"></i></div>
-          <h3>Paquete Premium</h3>
-          <p class="servicio-desc">Corte + barba + cejas + tratamiento capilar exclusivo</p>
-          <div class="servicio-precio">
-            <span class="precio-amount">$550</span>
-            <span class="precio-time"><i class="far fa-clock"></i> 90 min</span>
+          <div class="servicio-card-img">
+            <div class="servicio-img-wrapper">
+              <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&h=300&fit=crop" alt="Corte clásico">
+              <div class="servicio-img-price">$280</div>
+            </div>
+            <div class="servicio-card-info">
+              <h4>Corte Clásico</h4>
+              <p>Tradicional, lavado y secado</p>
+              <span class="servicio-card-time"><i class="far fa-clock"></i> 45 min</span>
+            </div>
           </div>
-        </div>
 
-        <div class="servicio-card">
-          <div class="servicio-icon"><i class="fas fa-child"></i></div>
-          <h3>Corte Niño</h3>
-          <p class="servicio-desc">Cortes infantiles modernos para los más pequeños</p>
-          <div class="servicio-precio">
-            <span class="precio-amount">$180</span>
-            <span class="precio-time"><i class="far fa-clock"></i> 35 min</span>
-          </div>
-        </div>
-
-        <div class="servicio-card servicio-destacado">
-          <div class="servicio-badge">Más vendido</div>
-          <div class="servicio-icon"><i class="fas fa-fire"></i></div>
-          <h3>Corte + Barba</h3>
-          <p class="servicio-desc">Combinación perfecta para un look completo y renovado</p>
-          <div class="servicio-precio">
-            <span class="precio-amount">$420</span>
-            <span class="precio-time"><i class="far fa-clock"></i> 60 min</span>
+          <div class="servicio-card-img">
+            <div class="servicio-img-wrapper">
+              <img src="https://i.pinimg.com/1200x/18/24/20/18242043de302c778e65032e7a217e6c.jpg" alt="Premium">
+              <div class="servicio-img-price">$550</div>
+            </div>
+            <div class="servicio-card-info">
+              <h4>Paquete Premium</h4>
+              <p>Corte + barba + cejas + tratamiento</p>
+              <span class="servicio-card-time"><i class="far fa-clock"></i> 90 min</span>
+            </div>
           </div>
         </div>
       </div>
@@ -106,41 +127,43 @@
     <div class="container">
       <h2 class="section-title">¿Por qué elegir Tauros?</h2>
       <p class="section-subtitle">Más que una barbería, una experiencia</p>
+
+      <div class="porque-video-wrapper">
+        <div class="porque-video">
+          <div class="video-placeholder" id="video-placeholder" onclick="playVideo()">
+            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&h=450&fit=crop" alt="Barbería Tauros" id="video-thumbnail">
+            <div class="video-play-btn" id="video-play-btn">
+              <i class="fas fa-play"></i>
+            </div>
+          </div>
+          <div id="video-container" style="display: none;">
+            <iframe id="video-iframe" width="100%" height="280" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 16px;"></iframe>
+          </div>
+        </div>
+        <div class="porque-video-text">
+          <h3>Descubre la experiencia Tauros</h3>
+          <p>Cada corte es una obra de arte. Nuestro equipo de expertos transformará tu estilo con técnicas de vanguardia y atención personalizada.</p>
+          <a href="#sillas" class="video-cta">Agenda tu cita</a>
+        </div>
+      </div>
+
       <div class="porque-grid">
         <div class="porque-card">
           <div class="porque-icon"><i class="fas fa-award"></i></div>
           <h3>Barberos Expertos</h3>
-          <p>Profesionales con más de 5 años de experiencia, capacitados en las últimas tendencias.</p>
-        </div>
-
-        <div class="porque-card">
-          <div class="porque-icon"><i class="fas fa-gem"></i></div>
-          <h3>Productos Premium</h3>
-          <p>Usamos exclusivamente productos de alta calidad para garantizar los mejores resultados.</p>
-        </div>
-
-        <div class="porque-card">
-          <div class="porque-icon"><i class="fas fa-shield-alt"></i></div>
-          <h3>Higiene Garantizada</h3>
-          <p>Estrictos protocolos de sanitización. Herramientas esterilizadas para cada cliente.</p>
-        </div>
-
-        <div class="porque-card">
-          <div class="porque-icon"><i class="fas fa-clock"></i></div>
-          <h3>Puntualidad</h3>
-          <p>Respetamos tu tiempo. Tu cita inicia exactamente a la hora pactada.</p>
+          <p>+5 años de experiencia y capacitación continua.</p>
         </div>
 
         <div class="porque-card">
           <div class="porque-icon"><i class="fas fa-heart"></i></div>
           <h3>Atención Personalizada</h3>
-          <p>Cada cliente es único. Escuchamos tus ideas y te asesoramos para el mejor look.</p>
+          <p>Te asesoramos para el mejor look.</p>
         </div>
 
         <div class="porque-card">
           <div class="porque-icon"><i class="fas fa-music"></i></div>
           <h3>Ambiente Premium</h3>
-          <p>Música selector, café gratis y un espacio diseñado para tu comodidad.</p>
+          <p>Música selector, café gratis y más.</p>
         </div>
       </div>
 
@@ -273,7 +296,7 @@
   </section>
 
   <!-- Footer -->
-  <footer class="footer">
+  <footer class="footer" id="contacto">
     <div class="footer-decoration"></div>
     <div class="container">
       <div class="footer-grid">
