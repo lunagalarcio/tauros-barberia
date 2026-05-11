@@ -35,7 +35,7 @@ function mostrarPanel() {
 // ── Funciones de datos ──
 
 async function cargarBarberos() {
-  const { data, error } = await window.supabase
+  const { data, error } = await window.supabaseClient
     .from('barberos')
     .select('*')
     .order('nombre');
@@ -49,7 +49,7 @@ async function cargarBarberos() {
 }
 
 async function crearBarbero(datos) {
-  const { data, error } = await window.supabase
+  const { data, error } = await window.supabaseClient
     .from('barberos')
     .insert([datos])
     .select()
@@ -63,7 +63,7 @@ async function crearBarbero(datos) {
 }
 
 async function actualizarBarbero(id, datos) {
-  const { data, error } = await window.supabase
+  const { data, error } = await window.supabaseClient
     .from('barberos')
     .update(datos)
     .eq('id', id)
@@ -78,7 +78,7 @@ async function actualizarBarbero(id, datos) {
 }
 
 async function toggleBarbero(id, activo) {
-  const { error } = await window.supabase
+  const { error } = await window.supabaseClient
     .from('barberos')
     .update({ activo })
     .eq('id', id);
@@ -92,7 +92,7 @@ async function toggleBarbero(id, activo) {
 }
 
 async function cargarHorarios(barberoId) {
-  const { data, error } = await window.supabase
+  const { data, error } = await window.supabaseClient
     .from('horarios')
     .select('*')
     .eq('barbero_id', barberoId)
@@ -107,7 +107,7 @@ async function cargarHorarios(barberoId) {
 
 async function guardarHorarios(barberoId, horarios) {
   const promesas = horarios.map(h => {
-    return window.supabase
+    return window.supabaseClient
       .from('horarios')
       .upsert({
         barbero_id: barberoId,
@@ -124,7 +124,7 @@ async function guardarHorarios(barberoId, horarios) {
 }
 
 async function cargarCitas(filtros = {}) {
-  let query = window.supabase
+  let query = window.supabaseClient
     .from('citas')
     .select(`
       *,

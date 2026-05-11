@@ -3,38 +3,180 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tauros Barbería | Citas</title>
+  <title>Tauros Barbería | Tu Estilo, Tu Historia</title>
+  <meta name="description" content="Agenda tu cita en Tauros Barbería. Los mejores barberos para tu estilo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <!-- Header -->
   <header class="header">
     <div class="container">
-      <div class="logo">TAUROS</div>
-      <a href="admin.html" class="admin-link">Panel Admin</a>
+      <a href="index.html" class="logo">TAUROS</a>
+      <a href="admin.html" class="admin-link"><i class="fas fa-lock"></i> Admin</a>
     </div>
   </header>
 
   <!-- Hero Section -->
   <section class="hero">
+    <div class="hero-decoration"></div>
+    <div class="hero-decoration"></div>
+    <div class="hero-decoration"></div>
     <h1>Tauros</h1>
     <p class="tagline">Donde la tradición meets el estilo</p>
-    <a href="#sillas" class="btn-primary">Agenda tu cita</a>
+    <a href="#sillas" class="btn-primary">Agenda tu cita ahora</a>
+  </section>
+
+  <!-- Servicios Section -->
+  <section class="servicios-section" id="servicios">
+    <div class="container">
+      <h2 class="section-title">Nuestros Servicios</h2>
+      <p class="section-subtitle">Cortes profesionales con la mejor calidad</p>
+      <div class="servicios-grid">
+        <div class="servicio-card">
+          <div class="servicio-icon"><i class="fas fa-cut"></i></div>
+          <h3>Corte Clásico</h3>
+          <p class="servicio-desc">Corte tradicional con acabado perfecto, incluye lavado y secado</p>
+          <div class="servicio-precio">
+            <span class="precio-amount">$280</span>
+            <span class="precio-time"><i class="far fa-clock"></i> 45 min</span>
+          </div>
+        </div>
+
+        <div class="servicio-card">
+          <div class="servicio-icon"><i class="fas fa-user"></i></div>
+          <h3>Corte Moderno</h3>
+          <p class="servicio-desc">Estilos contemporáneos, fade, skin, diseños personalizados</p>
+          <div class="servicio-precio">
+            <span class="precio-amount">$320</span>
+            <span class="precio-time"><i class="far fa-clock"></i> 50 min</span>
+          </div>
+        </div>
+
+        <div class="servicio-card">
+          <div class="servicio-icon"><i class="fas fa-star"></i></div>
+          <h3>Barba Completa</h3>
+          <p class="servicio-desc">Arreglo de barba con toalla caliente, aceite y acabado</p>
+          <div class="servicio-precio">
+            <span class="precio-amount">$180</span>
+            <span class="precio-time"><i class="far fa-clock"></i> 30 min</span>
+          </div>
+        </div>
+
+        <div class="servicio-card">
+          <div class="servicio-icon"><i class="fas fa-crown"></i></div>
+          <h3>Paquete Premium</h3>
+          <p class="servicio-desc">Corte + barba + cejas + tratamiento capilar exclusivo</p>
+          <div class="servicio-precio">
+            <span class="precio-amount">$550</span>
+            <span class="precio-time"><i class="far fa-clock"></i> 90 min</span>
+          </div>
+        </div>
+
+        <div class="servicio-card">
+          <div class="servicio-icon"><i class="fas fa-child"></i></div>
+          <h3>Corte Niño</h3>
+          <p class="servicio-desc">Cortes infantiles modernos para los más pequeños</p>
+          <div class="servicio-precio">
+            <span class="precio-amount">$180</span>
+            <span class="precio-time"><i class="far fa-clock"></i> 35 min</span>
+          </div>
+        </div>
+
+        <div class="servicio-card servicio-destacado">
+          <div class="servicio-badge">Más vendido</div>
+          <div class="servicio-icon"><i class="fas fa-fire"></i></div>
+          <h3>Corte + Barba</h3>
+          <p class="servicio-desc">Combinación perfecta para un look completo y renovado</p>
+          <div class="servicio-precio">
+            <span class="precio-amount">$420</span>
+            <span class="precio-time"><i class="far fa-clock"></i> 60 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Por qué elegirnos Section -->
+  <section class="porque-section" id="porque">
+    <div class="container">
+      <h2 class="section-title">¿Por qué elegir Tauros?</h2>
+      <p class="section-subtitle">Más que una barbería, una experiencia</p>
+      <div class="porque-grid">
+        <div class="porque-card">
+          <div class="porque-icon"><i class="fas fa-award"></i></div>
+          <h3>Barberos Expertos</h3>
+          <p>Profesionales con más de 5 años de experiencia, capacitados en las últimas tendencias.</p>
+        </div>
+
+        <div class="porque-card">
+          <div class="porque-icon"><i class="fas fa-gem"></i></div>
+          <h3>Productos Premium</h3>
+          <p>Usamos exclusivamente productos de alta calidad para garantizar los mejores resultados.</p>
+        </div>
+
+        <div class="porque-card">
+          <div class="porque-icon"><i class="fas fa-shield-alt"></i></div>
+          <h3>Higiene Garantizada</h3>
+          <p>Estrictos protocolos de sanitización. Herramientas esterilizadas para cada cliente.</p>
+        </div>
+
+        <div class="porque-card">
+          <div class="porque-icon"><i class="fas fa-clock"></i></div>
+          <h3>Puntualidad</h3>
+          <p>Respetamos tu tiempo. Tu cita inicia exactamente a la hora pactada.</p>
+        </div>
+
+        <div class="porque-card">
+          <div class="porque-icon"><i class="fas fa-heart"></i></div>
+          <h3>Atención Personalizada</h3>
+          <p>Cada cliente es único. Escuchamos tus ideas y te asesoramos para el mejor look.</p>
+        </div>
+
+        <div class="porque-card">
+          <div class="porque-icon"><i class="fas fa-music"></i></div>
+          <h3>Ambiente Premium</h3>
+          <p>Música selector, café gratis y un espacio diseñado para tu comodidad.</p>
+        </div>
+      </div>
+
+      <div class="porque-stats">
+        <div class="stat-item">
+          <div class="stat-number">+5,000</div>
+          <div class="stat-label">Clientes satisfechos</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Años de experiencia</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">4.9</div>
+          <div class="stat-label">Calificación Google</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Recomendación</div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- Sillas Section -->
   <section class="sillas-section" id="sillas">
     <div class="container">
       <h2 class="section-title">Elige a tu barbero</h2>
+      <p class="section-subtitle">Selecciona un profesional para comenzar</p>
       <div class="sillas-grid" id="sillas-container">
         <div class="loading">
           <div class="spinner"></div>
-          <p>Cargando...</p>
+          <p>Cargando barberos...</p>
         </div>
       </div>
     </div>
@@ -64,33 +206,52 @@
           </div>
         </div>
 
-        <!-- Step 1: Sillas (already shown above) -->
+        <!-- Step 1: Sillas -->
         <div id="step-1" class="hidden">
-          <p style="text-align: center; color: var(--text-muted);">Selecciona un barbero de la sección anterior</p>
+          <p style="text-align: center; color: var(--text-secondary); padding: 40px 20px;">Selecciona un barbero de la sección anterior para continuar</p>
         </div>
 
         <!-- Step 2: Calendario -->
         <div id="step-2" class="hidden">
-          <h3 style="color: var(--accent); margin-bottom: 20px; text-align: center;">Selecciona una fecha</h3>
-          <div id="calendario-container"></div>
-          <button class="btn-back" onclick="mostrarPaso(1)">Volver</button>
+          <div class="calendario-wrapper">
+            <h3 style="color: var(--accent); margin-bottom: 20px; text-align: center;">Selecciona una fecha</h3>
+            <div id="selected-date-display" class="selected-date-display" style="display: none;">
+              <div class="date-day" id="date-day"></div>
+              <div class="date-weekday" id="date-weekday"></div>
+              <div class="date-full" id="date-full"></div>
+            </div>
+            <div id="calendario-container"></div>
+          </div>
+          <div class="step-buttons">
+            <button class="btn-back" onclick="mostrarPaso(1)"><i class="fas fa-arrow-left"></i> Volver</button>
+            <button class="btn-next" id="btn-fecha-next" onclick="irASlots()" disabled>
+              Siguiente <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
         </div>
 
         <!-- Step 3: Slots -->
         <div id="step-3" class="hidden">
-          <h3 style="color: var(--accent); margin-bottom: 20px; text-align: center;">Selecciona un horario</h3>
-          <div id="slots-container">
-            <div class="loading">
-              <div class="spinner"></div>
-              <p>Cargando...</p>
+          <div class="slots-wrapper">
+            <h3 class="slots-title">Horarios disponibles</h3>
+            <div id="slots-container">
+              <div class="loading">
+                <div class="spinner"></div>
+                <p>Cargando horarios...</p>
+              </div>
             </div>
           </div>
-          <button class="btn-back" onclick="volverPaso(2)">Volver</button>
+          <div class="step-buttons">
+            <button class="btn-back" onclick="volverPaso(2)"><i class="fas fa-arrow-left"></i> Volver</button>
+            <button class="btn-next" id="btn-hora-next" onclick="irAFormulario()" disabled>
+              Siguiente <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
         </div>
 
         <!-- Step 4: Form -->
         <div id="step-4" class="hidden">
-          <div id="form-container">
+          <div class="form-wrapper" id="form-container">
             <div class="loading">
               <div class="spinner"></div>
               <p>Cargando formulario...</p>
@@ -113,15 +274,79 @@
 
   <!-- Footer -->
   <footer class="footer">
+    <div class="footer-decoration"></div>
     <div class="container">
-      <p>Av. Principal 123, Centro</p>
-      <p>(55) 1234-5678</p>
-      <div class="social-icons">
-        <a href="#"><i class="fab fa-instagram"></i></a>
-        <a href="#"><i class="fab fa-facebook-f"></i></a>
-        <a href="#"><i class="fab fa-whatsapp"></i></a>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo-wrapper">
+            <div class="footer-logo-main">TAUROS</div>
+            <div class="footer-tagline">Barbería Premium</div>
+          </div>
+          <p class="footer-description">Tradición y estilo en cada corte. Los mejores barberos para tu mejor versión.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h4><i class="fas fa-map-marker-alt"></i> Ubicación</h4>
+          <div class="footer-location">
+            <p class="footer-address">
+              <strong>Av. Insurgentes Sur #1822</strong><br>
+              Col. Florida, Benito Juárez<br>
+              CDMX, 01030
+            </p>
+            <a href="https://maps.google.com" target="_blank" class="footer-map-link">
+              <i class="fas fa-external-link-alt"></i> Ver en Google Maps
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h4><i class="fas fa-clock"></i> Horarios</h4>
+          <ul class="footer-hours">
+            <li><span>Lunes</span><span>9:00 AM - 8:00 PM</span></li>
+            <li><span>Martes</span><span>9:00 AM - 8:00 PM</span></li>
+            <li><span>Miércoles</span><span>9:00 AM - 8:00 PM</span></li>
+            <li><span>Jueves</span><span>9:00 AM - 8:00 PM</span></li>
+            <li><span>Viernes</span><span>9:00 AM - 9:00 PM</span></li>
+            <li><span>Sábado</span><span>10:00 AM - 9:00 PM</span></li>
+            <li><span>Domingo</span><span>Cerrado</span></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h4><i class="fas fa-phone-alt"></i> Contacto</h4>
+          <ul class="footer-contact">
+            <li>
+              <i class="fas fa-phone"></i>
+              <span>(55) 4165-8290</span>
+            </li>
+            <li>
+              <i class="fab fa-whatsapp"></i>
+              <span>+52 55 4165 8290</span>
+            </li>
+            <li>
+              <i class="fas fa-envelope"></i>
+              <span>hola@taurosbarberia.com</span>
+            </li>
+          </ul>
+        </div>
       </div>
-      <p style="margin-top: 20px; font-size: 0.8rem;">&copy; 2026 Tauros Barbería. Todos los derechos reservados.</p>
+
+      <div class="footer-bottom">
+        <div class="footer-divider"></div>
+        <div class="footer-bottom-content">
+          <p>&copy; 2026 Tauros Barbería. Todos los derechos reservados.</p>
+          <div class="footer-badges">
+            <span><i class="fas fa-award"></i> Servicio Premium</span>
+            <span><i class="fas fa-star"></i> +5 años de experiencia</span>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 

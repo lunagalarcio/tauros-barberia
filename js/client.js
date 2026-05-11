@@ -2,16 +2,20 @@
 const state = {
   barberoId: null,
   barberName: '',
+  barberEspecialidad: '',
   fecha: null,
   horaInicio: null,
   horaFin: null,
-  paso: 1
+  paso: 1,
+  mesActual: new Date().getMonth(),
+  anioActual: new Date().getFullYear(),
+  barberosData: []
 };
 
 // ── Funciones de datos (Supabase) ──
 
 async function cargarSillas() {
-  const { data, error } = await window.supabase
+  const { data, error } = await window.supabaseClient
     .from('barberos')
     .select('*')
     .eq('activo', true)
@@ -25,7 +29,7 @@ async function cargarSillas() {
 }
 
 async function cargarHorario(barberoId, diaSemana) {
-  const { data, error } = await window.supabase
+  const { data, error } = await window.supabaseClient
     .from('horarios')
     .select('*')
     .eq('barbero_id', barberoId)
@@ -41,7 +45,7 @@ async function cargarHorario(barberoId, diaSemana) {
 }
 
 async function cargarCitasDelDia(barberoId, fecha) {
-  const { data, error } = await window.supabase
+  const { data, error } = await window.supabaseClient
     .from('citas')
     .select('*')
     .eq('barbero_id', barberoId)
@@ -61,7 +65,7 @@ async function verificarDisponibilidad(barberoId, fecha, horaInicio) {
 }
 
 async function guardarCita(datos) {
-  const { data, error } = await window.supabase
+  const { data, error } = await window.supabaseClient
     .from('citas')
     .insert([datos])
     .select()
@@ -105,21 +109,29 @@ function renderSillas(sillas) {
     return;
   }
 
-  sillas.forEach(barbero => {
+  state.barberosData = sillas;
+
+  sillas.forEach((barbero, index) => {
     const card = document.createElement('div');
     card.className = 'silla-card';
-    card.onclick = () => seleccionarBarbero(barbero);
+    card.dataset.id = barbero.id;
+    card.onclick = () => seleccionarBarbero(barbero, card);
 
     const inicial = barbero.nombre.charAt(0).toUpperCase();
     const fotoHtml = barbero.foto_url
-      ? `<img src="${barbero.foto_url}" alt="${barbero.nombre}" class="silla-avatar">`
-      : `<div class="silla-avatar">${inicial}</div>`;
+      ? `<div class="silla-avatar"><img src="${barbero.foto_url}" alt="${barbero.nombre}"></div>`
+      : `<div class="silla-avatar"><div class="silla-avatar-initials">${inicial}</div></div>`;
 
     card.innerHTML = `
-      ${fotoHtml}
-      <h3>${barbero.nombre}</h3>
-      <p class="especialidad">${barbero.especialidad || 'Barbero'}</p>
-      <span class="badge disponible">Disponible</span>
+      <div class="silla-number">${index + 1}</div>
+      <div class="silla-avatar-wrapper">
+        ${fotoHtml}
+      </div>
+      <div class="silla-info">
+        <h3>${barbero.nombre}</h3>
+        <p class="especialidad"><i class="fas fa-cut"></i> ${barbero.especialidad || 'Barbero'}</p>
+        <span class="badge disponible">Disponible</span>
+      </div>
     `;
 
     container.appendChild(card);
@@ -129,17 +141,26 @@ function renderSillas(sillas) {
 function renderCalendario() {
   const container = document.getElementById('calendario-container');
   const hoy = new Date();
-  const mesActual = hoy.getMonth();
-  const anioActual = hoy.getFullYear();
+  const mesActual = state.mesActual;
+  const anioActual = state.anioActual;
 
   const nombreMes = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-  let html = `<div style="text-align: center; margin-bottom: 20px;">
-    <h3 style="color: var(--accent);">${nombreMes[mesActual]} ${anioActual}</h3>
-  </div>`;
+  let html = `
+    <div class="calendario-mes-nav">
+      <button class="calendario-nav" onclick="cambiarMes(-1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span class="mes-label">${nombreMes[mesActual]} ${anioActual}</span>
+      <button class="calendario-nav" onclick="cambiarMes(1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  `;
 
+  html += '<div class="calendario-grid">';
   diasSemana.forEach(dia => {
     html += `<div class="calendario-header">${dia}</div>`;
   });
@@ -152,21 +173,24 @@ function renderCalendario() {
   }
 
   const hoyStr = `${anioActual}-${String(mesActual + 1).padStart(2, '0')}`;
+  const hoyNum = hoy.getDate();
 
   for (let dia = 1; dia <= diasEnMes; dia++) {
     const fecha = new Date(anioActual, mesActual, dia);
     const fechaStr = `${anioActual}-${String(mesActual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-    const esHoy = hoyStr === `${anioActual}-${String(mesActual + 1).padStart(2, '0')}` && dia === hoy.getDate();
+    const esHoy = mesActual === hoy.getMonth() && anioActual === hoy.getFullYear() && dia === hoyNum;
     const esPasado = fecha < new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
     const esDomingo = fecha.getDay() === 0;
 
     let clases = 'calendario-dia';
     if (esPasado || esDomingo) clases += ' disabled';
     if (esHoy) clases += ' hoy';
+    if (state.fecha === fechaStr) clases += ' selected';
 
     html += `<div class="${clases}" data-fecha="${fechaStr}" onclick="seleccionarFecha('${fechaStr}', this)">${dia}</div>`;
   }
 
+  html += '</div>';
   container.innerHTML = html;
 }
 
@@ -175,47 +199,74 @@ async function renderSlots(horario, citasOcupadas) {
   container.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando horarios...</div>';
 
   if (!horario) {
-    container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Este día no hay atención disponible.</p>';
+    container.innerHTML = `
+      <p style="color: var(--text-muted); text-align: center; padding: 40px 20px;">
+        <i class="fas fa-calendar-times" style="font-size: 2rem; margin-bottom: 12px; display: block;"></i>
+        Este día no hay atención disponible
+      </p>`;
     return;
   }
 
   const slots = generarSlots(horario.hora_inicio, horario.hora_fin, horario.duracion_slot || 30);
   const ocupadas = new Set(citasOcupadas.map(c => c.hora_inicio));
 
-  let html = '<div class="slots-grid">';
+  let html = `<div class="slots-grid">`;
   slots.forEach(slot => {
     const estaOcupada = ocupadas.has(slot);
     const clase = estaOcupada ? 'ocupado' : 'disponible';
-    const onclick = estaOcupada ? '' : `seleccionarSlot('${slot}', this)`;
-    html += `<button class="slot-btn ${clase}" ${onclick}>${slot}</button>`;
+    const disabled = estaOcupada ? 'disabled' : '';
+    const icono = estaOcupada ? '<i class="fas fa-lock"></i>' : '<i class="far fa-clock"></i>';
+    html += `<button class="slot-btn ${clase}" data-hora="${slot}" ${disabled}>${icono} ${slot}</button>`;
   });
   html += '</div>';
 
   container.innerHTML = html;
+
+  container.addEventListener('click', function(e) {
+    const btn = e.target.closest('.slot-btn.disponible');
+    if (btn) {
+      const hora = btn.dataset.hora;
+      seleccionarSlot(hora, btn);
+    }
+  });
 }
 
 function renderFormulario() {
   const container = document.getElementById('form-container');
+  const fechaFormateada = formatearFecha(state.fecha);
+
   container.innerHTML = `
     <div class="form-container">
-      <h3 style="color: var(--accent); margin-bottom: 25px; text-align: center;">Confirmar tu cita</h3>
-      <div class="confirmacion-details" style="margin-bottom: 25px;">
-        <p><strong>Barbero:</strong> ${state.barberName}</p>
-        <p><strong>Fecha:</strong> ${formatearFecha(state.fecha)}</p>
-        <p><strong>Hora:</strong> ${state.horaInicio}</p>
+      <div class="form-header">
+        <h3><i class="fas fa-calendar-check"></i> Confirma tu cita</h3>
+        <p>Completa tus datos para finalizar</p>
+      </div>
+      <div class="form-summary">
+        <div class="form-summary-item">
+          <span><i class="fas fa-user-tie"></i> Barbero</span>
+          <span>${state.barberName}</span>
+        </div>
+        <div class="form-summary-item">
+          <span><i class="fas fa-calendar-day"></i> Fecha</span>
+          <span>${fechaFormateada}</span>
+        </div>
+        <div class="form-summary-item">
+          <span><i class="fas fa-clock"></i> Hora</span>
+          <span>${state.horaInicio}</span>
+        </div>
       </div>
       <div class="message error" id="form-error"></div>
       <form onsubmit="enviarFormulario(event)">
         <div class="form-group">
-          <label>Nombre completo</label>
-          <input type="text" id="cliente-nombre" placeholder="Tu nombre" required>
+          <label><i class="fas fa-user"></i> Nombre completo</label>
+          <input type="text" id="cliente-nombre" placeholder="Tu nombre completo" required>
         </div>
         <div class="form-group">
-          <label>Teléfono o WhatsApp</label>
+          <label><i class="fas fa-phone"></i> Teléfono o WhatsApp</label>
           <input type="text" id="cliente-contacto" placeholder="Tu número de contacto" required>
         </div>
-        <button type="submit" class="btn-submit">Confirmar cita</button>
-        <button type="button" class="btn-back" onclick="volverPaso(3)">Volver</button>
+        <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Confirmar cita</button>
+        <button type="button" class="btn-back" onclick="volverPaso(3)"><i class="fas fa-arrow-left"></i> Volver</button>
       </form>
     </div>
   `;
@@ -223,19 +274,26 @@ function renderFormulario() {
 
 function renderConfirmacion(cita) {
   const container = document.getElementById('confirmacion-container');
+  const fechaFormateada = formatearFecha(state.fecha);
+
   container.innerHTML = `
     <div class="confirmacion-container">
-      <div class="confirmacion-icon">✓</div>
-      <h2>¡Cita confirmad!</h2>
+      <div class="confirmacion-icon"><i class="fas fa-check"></i></div>
+      <h2>¡Cita confirmada!</h2>
+      <p>Te esperamos con la mejor atención</p>
       <div class="confirmacion-details">
-        <p><strong>Barbero:</strong> ${state.barberName}</p>
-        <p><strong>Fecha:</strong> ${formatearFecha(state.fecha)}</p>
-        <p><strong>Hora:</strong> ${state.horaInicio}</p>
-        <p><strong>Cliente:</strong> ${cita.cliente_nombre}</p>
-        <p><strong>Contacto:</strong> ${cita.cliente_contacto}</p>
+        <p><span><i class="fas fa-user-tie"></i> Barbero</span> <strong>${state.barberName}</strong></p>
+        <p><span><i class="fas fa-calendar-day"></i> Fecha</span> <strong>${fechaFormateada}</strong></p>
+        <p><span><i class="fas fa-clock"></i> Hora</span> <strong>${state.horaInicio}</strong></p>
+        <p><span><i class="fas fa-user"></i> Cliente</span> <strong>${cita.cliente_nombre}</strong></p>
+        <p><span><i class="fas fa-phone"></i> Contacto</span> <strong>${cita.cliente_contacto}</strong></p>
       </div>
-      <p style="color: var(--text-muted); margin-bottom: 25px;">Te esperamos. Llega 5 minutos antes.</p>
-      <button class="btn-nueva" onclick="nuevaCita()">Agendar otra cita</button>
+      <p style="color: var(--text-muted); margin-bottom: 25px;">
+        <i class="fas fa-info-circle"></i> Llega 5 minutos antes de tu hora
+      </p>
+      <button class="btn-nueva" onclick="nuevaCita()">
+        <i class="fas fa-plus"></i> Agendar otra cita
+      </button>
     </div>
   `;
 }
@@ -274,32 +332,86 @@ function actualizarStepper(paso) {
   });
 }
 
+function actualizarDisplayFecha() {
+  const display = document.getElementById('selected-date-display');
+  if (!state.fecha) {
+    display.style.display = 'none';
+    return;
+  }
+
+  display.style.display = 'block';
+  const fecha = new Date(state.fecha + 'T00:00:00');
+  const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  document.getElementById('date-day').textContent = fecha.getDate();
+  document.getElementById('date-weekday').textContent = diasSemana[fecha.getDay()];
+  document.getElementById('date-full').textContent = `${diasSemana[fecha.getDay()]} ${fecha.getDate()} de ${meses[fecha.getMonth()]} del ${fecha.getFullYear()}`;
+}
+
 // ── Event handlers ──
 
-async function seleccionarBarbero(barbero) {
+async function seleccionarBarbero(barbero, cardElement) {
+  document.querySelectorAll('.silla-card').forEach(card => card.classList.remove('selected'));
+  cardElement.classList.add('selected');
+
   state.barberoId = barbero.id;
   state.barberName = barbero.nombre;
+  state.barberEspecialidad = barbero.especialidad || 'Barbero';
   state.fecha = null;
   state.horaInicio = null;
   state.horaFin = null;
 
+  state.mesActual = new Date().getMonth();
+  state.anioActual = new Date().getFullYear();
+
+  const btnNext = document.getElementById('btn-fecha-next');
+  if (btnNext) btnNext.disabled = true;
+
   renderCalendario();
+  actualizarDisplayFecha();
   mostrarPaso(2);
 }
 
 function seleccionarFecha(fecha, element) {
+  if (element.classList.contains('disabled')) return;
+
   const dias = document.querySelectorAll('.calendario-dia:not(.disabled)');
   dias.forEach(d => d.classList.remove('selected'));
   element.classList.add('selected');
 
   state.fecha = fecha;
+  actualizarDisplayFecha();
+
+  const btnNext = document.getElementById('btn-fecha-next');
+  if (btnNext) btnNext.disabled = false;
+}
+
+function irASlots() {
+  if (!state.fecha) return;
   cargarSlotsParaFecha();
+  mostrarPaso(3);
 }
 
 async function cargarSlotsParaFecha() {
   const diaSemana = getDiaSemana(state.fecha);
   const horario = await cargarHorario(state.barberoId, diaSemana);
   const citas = await cargarCitasDelDia(state.barberoId, state.fecha);
+
+  const container = document.getElementById('slots-container');
+  const fechaFormateada = formatearFecha(state.fecha);
+
+  const wrapper = container.closest('.slots-wrapper');
+  wrapper.querySelector('.slots-title').textContent = `Horarios para ${state.barberName}`;
+
+  let dateInfo = wrapper.querySelector('.slots-date-info');
+  if (!dateInfo) {
+    dateInfo = document.createElement('div');
+    dateInfo.className = 'slots-date-info';
+    wrapper.insertBefore(dateInfo, wrapper.querySelector('.slots-grid') || container);
+  }
+  dateInfo.innerHTML = `<i class="fas fa-calendar-alt"></i> ${fechaFormateada}`;
+
   renderSlots(horario, citas);
 }
 
@@ -316,8 +428,35 @@ function seleccionarSlot(hora, element) {
   slots.forEach(s => s.classList.remove('seleccionado'));
   element.classList.add('seleccionado');
 
+  const btnNext = document.getElementById('btn-hora-next');
+  if (btnNext) btnNext.disabled = false;
+}
+
+function irAFormulario() {
+  if (!state.horaInicio) return;
   renderFormulario();
   mostrarPaso(4);
+}
+
+function irASlots() {
+  if (!state.fecha) return;
+  const btnNext = document.getElementById('btn-hora-next');
+  if (btnNext) btnNext.disabled = true;
+  state.horaInicio = null;
+  cargarSlotsParaFecha();
+  mostrarPaso(3);
+}
+
+function cambiarMes(direccion) {
+  state.mesActual += direccion;
+  if (state.mesActual > 11) {
+    state.mesActual = 0;
+    state.anioActual++;
+  } else if (state.mesActual < 0) {
+    state.mesActual = 11;
+    state.anioActual--;
+  }
+  renderCalendario();
 }
 
 function volverPaso(paso) {
@@ -376,9 +515,12 @@ async function enviarFormulario(e) {
 function nuevaCita() {
   state.barberoId = null;
   state.barberName = '';
+  state.barberEspecialidad = '';
   state.fecha = null;
   state.horaInicio = null;
   state.horaFin = null;
+  state.mesActual = new Date().getMonth();
+  state.anioActual = new Date().getFullYear();
 
   document.getElementById('sillas-container').innerHTML = '';
   document.getElementById('confirmacion-container').innerHTML = '';
@@ -390,10 +532,6 @@ function nuevaCita() {
 }
 
 // ── Inicialización ──
-
-document.addEventListener('DOMContentLoaded', () => {
-  cargarSillas().then(renderSillas);
-});
 
 function initClient() {
   cargarSillas().then(renderSillas);

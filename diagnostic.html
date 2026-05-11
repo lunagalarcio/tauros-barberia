@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnostic - Tauros</title>
+  <style>
+    body { font-family: monospace; background: #1a1a1a; color: #0f0; padding: 20px; line-height: 1.6; }
+    .error { color: #f55; }
+    .success { color: #5f5; }
+    .warning { color: #f90; }
+    pre { background: #0a0a0a; padding: 15px; border-radius: 5px; margin: 10px 0; overflow-x: auto; }
+    h2 { color: #fff; border-bottom: 1px solid #333; padding-bottom: 5px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Diagnostic - Tauros Barbería</h1>
+  
+  <h2>1. SDK Status</h2>
+  <pre id="sdk"></pre>
+  
+  <h2>2. Database Test</h2>
+  <pre id="db"></pre>
+  
+  <h2>3. Table Check</h2>
+  <pre id="tables"></pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    const SUPABASE_URL = 'https://amhtrwrucsgfbkswhttk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaHRyd3J1Y3NnZmJrc3dodHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3Nzc2NjAsImV4cCI6MjAwNTM1MzY2MH0.sb_publishable_ekgomtNBIdIJT_Sz6auKDw_tXQ-2jyk';
+    
+    const sdkEl = document.getElementById('sdk');
+    const dbEl = document.getElementById('db');
+    const tablesEl = document.getElementById('tables');
+    
+    // 1. Check SDK
+    let sdkStatus = 'window.supabase: ' + (typeof window.supabase) + '\n';
+    sdkStatus += 'createClient: ' + (typeof window.supabase?.createClient) + '\n';
+    
+    if (window.supabase && window.supabase.createClient) {
+      sdkEl.innerHTML = '<span class="success">✓ SDK CARGADO</span>\n' + sdkStatus;
+    } else {
+      sdkEl.innerHTML = '<span class="error">✗ SDK NO CARGADO</span>\n' + sdkStatus;
+    }
+    
+    // 2. Test connection and query
+    async function runDiagnostics() {
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      
+      let dbStatus = '';
+      
+      // Test 1: Get all barberos (no filter)
+      const { data: allBarberos, error: err1 } = await client
+        .from('barberos')
+        .select('*');
+      
+      dbStatus += 'Todos los barberos: ' + (allBarberos?.length || 0) + '\n';
+      if (err1) {
+        dbStatus += '<span class="error">Error: ' + err1.message + '</span>\n';
+      }
+      
+      // Test 2: Get active barberos
+      const { data: activeBarberos, error: err2 } = await client
+        .from('barberos')
+        .select('*')
+        .eq('activo', true);
+      
+      dbStatus += 'Barberos activos: ' + (activeBarberos?.length || 0) + '\n';
+      if (err2) {
+        dbStatus += '<span class="error">Error: ' + err2.message + '</span>\n';
+      }
+      
+      dbEl.innerHTML = dbStatus || '<span class="warning">Sin datos</span>';
+      
+      // 3. Show actual data
+      let tablesStatus = '';
+      
+      if (allBarberos && allBarberos.length > 0) {
+        tablesStatus += '<span class="success">Barberos en BD:</span>\n';
+        allBarberos.forEach((b, i) => {
+          tablesStatus += `  ${i+1}. ${b.nombre} | activo: ${b.activo}\n`;
+        });
+      } else {
+        tablesStatus += '<span class="warning">No hay barberos en la base de datos</span>\n';
+        tablesStatus += '<br>Sugerencia: Ejecuta el SQL en Supabase > SQL Editor > init.sql';
+      }
+      
+      tablesEl.innerHTML = tablesStatus;
+    }
+    
+    runDiagnostics().catch(e => {
+      dbEl.innerHTML = '<span class="error">Error: ' + e.message + '</span>';
+    });
+  </script>
+</body>
+</html>
