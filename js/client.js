@@ -558,25 +558,6 @@ async function enviarFormulario(e) {
     return;
   }
 
-  // Enviar email de confirmación con Resend
-  try {
-    await fetch(`${state.SUPABASE_URL}/functions/v1/send-confirmation-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.SUPABASE_ANON_KEY}` },
-      body: JSON.stringify({
-        cita_id: data.id,
-        cliente_email: email,
-        cliente_nombre: nombre,
-        barbero_nombre: state.barberName,
-        fecha: state.fecha,
-        hora_inicio: state.horaInicio,
-        cliente_contacto: contacto
-      })
-    });
-  } catch (emailError) {
-    console.warn('Error enviando email:', emailError);
-  }
-
   errorDiv.style.display = 'none';
   document.getElementById('form-container').innerHTML = '';
   document.getElementById('confirmacion-container').innerHTML = '';
