@@ -60,26 +60,45 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type"
 };
 
+async function parseBody(req) {
+  try {
+    const text = await req.text();
+    if (!text) return {};
+    return JSON.parse(text);
+  } catch {
+    return {};
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { cliente_email, cliente_nombre, barbero_nombre, fecha, hora_inicio, cliente_contacto } = await req.json();
+    const body = await parseBody(req);
+    
+    const cliente_email = body.cliente_email;
+    const cliente_nombre = body.cliente_nombre;
+    const barbero_nombre = body.barbero_nombre;
+    const fecha = body.fecha;
+    const fecha_formato = body.fecha_formato;
+    const hora_inicio = body.hora_inicio;
+    const cliente_contacto = body.cliente_contacto;
 
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    const fechaObj = new Date(fecha + 'T00:00:00');
-    const fechaFormateada = `${fechaObj.getDate()} de ${meses[fechaObj.getMonth()]} del ${fechaObj.getFullYear()}`;
+    if (!cliente_email || !cliente_nombre) {
+      console.log("Datos incompletos:", body);
+      return new Response(JSON.stringify({ error: "Datos incompletos", body }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     const datos = {
       cliente_nombre,
       cliente_email,
-      barbero_nombre,
+      barbero_nombre: barbero_nombre || "Tu barbero",
       fecha,
-      fecha_formato: fechaFormateada,
-      hora_inicio,
-      cliente_contacto
+      fecha_formato: fecha_formato || fecha,
+      hora_inicio: hora_inicio || "09:00",
+      cliente_contacto: cliente_contacto || "No proporcionado"
     };
 
     const res = await fetch("https://api.resend.com/emails", {
@@ -96,14 +115,20 @@ Deno.serve(async (req) => {
       })
     });
 
-    if (!res.ok) {
-      const error = await res.text();
-      console.error("Error Resend:", error);
-      return new Response(JSON.stringify({ error }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const resText = await res.text();
+    let result;
+    try {
+      result = JSON.parse(resText);
+    } catch {
+      result = { raw: resText };
     }
 
-    const result = await res.json();
-    return new Response(JSON.stringify({ success: true, id: result.id }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!res.ok) {
+      console.error("Error Resend:", result);
+      return new Response(JSON.stringify({ error: "Error enviando email", details: result }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    return new Response(JSON.stringify({ success: true, id: result.id || result }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (error) {
     console.error("Error general:", error);
