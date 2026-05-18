@@ -14,6 +14,25 @@ const state = {
   barberosData: []
 };
 
+// ── Sanitización para prevenir XSS ──
+function sanitizeHTML(str) {
+  if (typeof str !== 'string') return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escapeAttr(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
 // ── Funciones de datos (Supabase) ──
 
 async function cargarSillas() {
@@ -145,9 +164,13 @@ function renderSillas(sillas) {
     card.dataset.id = barbero.id;
     card.onclick = () => seleccionarBarbero(barbero, card);
 
-    const inicial = barbero.nombre.charAt(0).toUpperCase();
+    const nombreSanitized = sanitizeHTML(barbero.nombre);
+    const especialidadSanitized = sanitizeHTML(barbero.especialidad || 'Barbero');
+    const inicial = nombreSanitized.charAt(0).toUpperCase();
+    const fotoUrlSafe = barbero.foto_url ? escapeAttr(barbero.foto_url) : '';
+
     const fotoHtml = barbero.foto_url
-      ? `<div class="silla-avatar"><img src="${barbero.foto_url}" alt="${barbero.nombre}"></div>`
+      ? `<div class="silla-avatar"><img src="${fotoUrlSafe}" alt="${nombreSanitized}"></div>`
       : `<div class="silla-avatar"><div class="silla-avatar-initials">${inicial}</div></div>`;
 
     card.innerHTML = `
@@ -156,8 +179,8 @@ function renderSillas(sillas) {
         ${fotoHtml}
       </div>
       <div class="silla-info">
-        <h3>${barbero.nombre}</h3>
-        <p class="especialidad"><i class="fas fa-cut"></i> ${barbero.especialidad || 'Barbero'}</p>
+        <h3>${nombreSanitized}</h3>
+        <p class="especialidad"><i class="fas fa-cut"></i> ${especialidadSanitized}</p>
         <span class="badge disponible">Disponible</span>
       </div>
     `;
@@ -337,24 +360,29 @@ function renderConfirmacion(cita) {
   const fechaFormateada = formatearFecha(state.fecha);
   state.citaId = cita.id;
 
+  const nombreSanitized = sanitizeHTML(state.barberName);
+  const clienteNombreSanitized = sanitizeHTML(cita.cliente_nombre || '');
+  const clienteEmailSanitized = sanitizeHTML(cita.cliente_email || '');
+  const clienteContactoSanitized = sanitizeHTML(cita.cliente_contacto || '');
+
   container.innerHTML = `
     <div class="confirmacion-container">
       <div class="confirmacion-icon"><i class="fas fa-check"></i></div>
       <h2>¡Cita confirmada!</h2>
       <p>Te esperamos con la mejor atención</p>
       <div class="confirmacion-details">
-        <p><span><i class="fas fa-user-tie"></i> Barbero</span> <strong>${state.barberName}</strong></p>
+        <p><span><i class="fas fa-user-tie"></i> Barbero</span> <strong>${nombreSanitized}</strong></p>
         <p><span><i class="fas fa-calendar-day"></i> Fecha</span> <strong>${fechaFormateada}</strong></p>
-        <p><span><i class="fas fa-clock"></i> Hora</span> <strong>${state.horaInicio}</strong></p>
-        <p><span><i class="fas fa-user"></i> Cliente</span> <strong>${cita.cliente_nombre}</strong></p>
-        <p><span><i class="fas fa-envelope"></i> Email</span> <strong>${cita.cliente_email}</strong></p>
-        <p><span><i class="fas fa-phone"></i> Contacto</span> <strong>${cita.cliente_contacto}</strong></p>
+        <p><span><i class="fas fa-clock"></i> Hora</span> <strong>${escapeAttr(state.horaInicio)}</strong></p>
+        <p><span><i class="fas fa-user"></i> Cliente</span> <strong>${clienteNombreSanitized}</strong></p>
+        <p><span><i class="fas fa-envelope"></i> Email</span> <strong>${clienteEmailSanitized}</strong></p>
+        <p><span><i class="fas fa-phone"></i> Contacto</span> <strong>${clienteContactoSanitized}</strong></p>
       </div>
       <p style="color: var(--text-muted); margin-bottom: 25px;">
         <i class="fas fa-info-circle"></i> Llega 5 minutos antes de tu hora
       </p>
       <div class="confirmacion-actions">
-        <button class="btn-nueva" onclick="nuevaCita()">
+        <button class="btn-nueva" onclick="nuevaCite()">
           <i class="fas fa-plus"></i> Agendar otra cita
         </button>
         <button class="btn-cancelar" onclick="cancelarCita('${state.citaId}')">

@@ -53,19 +53,32 @@ ALTER TABLE barberos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE horarios ENABLE ROW LEVEL SECURITY;
 ALTER TABLE citas ENABLE ROW LEVEL SECURITY;
 
--- Políticas RLS - Lectura pública
+-- Políticas RLS - Lectura pública (solo lectura, no modificación)
 CREATE POLICY "Public read sillas" ON sillas FOR SELECT USING (true);
 CREATE POLICY "Public read barberos" ON barberos FOR SELECT USING (true);
 CREATE POLICY "Public read horarios" ON horarios FOR SELECT USING (true);
 CREATE POLICY "Public read citas" ON citas FOR SELECT USING (true);
 
 -- Política RLS - INSERT público en citas (para agendamiento)
-CREATE POLICY "Public insert citas" ON citas FOR INSERT WITH CHECK (true);
+-- Solo permite insertar, no actualizar o eliminar
+CREATE POLICY "Public insert citas" ON citas FOR INSERT WITH CHECK (
+    estado IN ('confirmada', 'cancelada')
+    AND cliente_nombre IS NOT NULL
+    AND cliente_nombre::text ~* '^[a-zA-Z\s]+$'
+    AND cliente_email IS NOT NULL
+    AND cliente_email::text ~* '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    AND cliente_contacto IS NOT NULL
+    AND cliente_contacto::text ~ '^[0-9]+$'
+    AND length(cliente_contacto::text) >= 10
+    AND fecha >= CURRENT_DATE
+);
 
--- Deshabilitar RLS para simplify development (proyecto académico)
-ALTER TABLE sillas DISABLE ROW LEVEL SECURITY;
-ALTER TABLE barberos DISABLE ROW LEVEL SECURITY;
-ALTER TABLE horarios DISABLE ROW LEVEL SECURITY;
+-- Eliminar políticas de UPDATE y DELETE públicas (proteger datos)
+DROP POLICY IF EXISTS "Public update citas" ON citas;
+DROP POLICY IF EXISTS "Public delete citas" ON citas;
+
+-- Tabla para almacenar admin (solo lectura)
+-- Los admin se gestionan vía Edge Functions, no tabla pública
 
 -- Insertar Barberos de ejemplo
 INSERT INTO barberos (nombre, especialidad, silla_id, activo, foto_url) VALUES

@@ -1,26 +1,76 @@
-// ── Auth simple ──
-const ADMIN_PASSWORD = 'tauros2024';
+// ── Auth segura con Edge Function ──
+const SUPABASE_URL = 'https://amhtrwrucsgfbkswhttk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaHRyd3J1Y3NnZmJrc3dodHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NDQxNjMsImV4cCI6MjA5MzQyMDE2M30.uN-1kwj3H_CmRlB51nOhW_7INMoj0Cq-OlNAjwKMWPY';
 
-function verificarAuth() {
-  const session = sessionStorage.getItem('tauros_admin');
-  if (session) {
-    mostrarPanel();
-    return true;
+function guardarToken(token) {
+  try {
+    sessionStorage.setItem('tauros_admin_token', token);
+  } catch (e) {
+    localStorage.setItem('tauros_admin_token', token);
   }
-  return false;
 }
 
-function login(password) {
-  if (password === ADMIN_PASSWORD) {
-    sessionStorage.setItem('tauros_admin', 'true');
+function obtenerToken() {
+  try {
+    return sessionStorage.getItem('tauros_admin_token') || localStorage.getItem('tauros_admin_token');
+  } catch (e) {
+    return localStorage.getItem('tauros_admin_token');
+  }
+}
+
+function eliminarToken() {
+  try {
+    sessionStorage.removeItem('tauros_admin_token');
+  } catch (e) {}
+  localStorage.removeItem('tauros_admin_token');
+}
+
+async function verificarAuth() {
+  const session = obtenerToken();
+  if (!session) return false;
+
+  try {
+    const sessionData = JSON.parse(atob(session));
+    if (sessionData.exp < Date.now()) {
+      eliminarToken();
+      return false;
+    }
     mostrarPanel();
     return true;
+  } catch {
+    return false;
   }
-  return false;
+}
+
+async function login(password) {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/admin-auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ password })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Auth error:', data.error);
+      return false;
+    }
+
+    guardarToken(data.token);
+    mostrarPanel();
+    return true;
+  } catch (error) {
+    console.error('Login error:', error);
+    return false;
+  }
 }
 
 function logout() {
-  sessionStorage.removeItem('tauros_admin');
+  eliminarToken();
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('admin-panel').classList.remove('active');
 }
