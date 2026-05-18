@@ -1,11 +1,15 @@
 // ── Estado global ──
 const state = {
+  SUPABASE_URL: 'https://amhtrwrucsgfbkswhttk.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaHRyd3J1Y3NnZmJrc3dodHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NDQxNjMsImV4cCI6MjA5MzQyMDE2M30.uN-1kwj3H_CmRlB51nOhW_7INMoj0Cq-OlNAjwKMWPY',
   barberoId: null,
   barberName: '',
   barberEspecialidad: '',
   fecha: null,
   horaInicio: null,
   horaFin: null,
+  duracionSlot: 60,
+  citaId: null,
   paso: 1,
   mesActual: new Date().getMonth(),
   anioActual: new Date().getFullYear(),
@@ -61,7 +65,11 @@ async function cargarCitasDelDia(barberoId, fecha) {
 
 async function verificarDisponibilidad(barberoId, fecha, horaInicio) {
   const citas = await cargarCitasDelDia(barberoId, fecha);
-  return !citas.some(c => c.hora_inicio === horaInicio);
+  const horaFormateada = horaInicio.substring(0, 5);
+  return !citas.some(c => {
+    const horaCita = typeof c.hora_inicio === 'string' ? c.hora_inicio.substring(0, 5) : c.hora_inicio;
+    return horaCita === horaFormateada;
+  });
 }
 
 async function guardarCita(datos) {
@@ -183,7 +191,7 @@ function renderCalendario() {
     const esDomingo = fecha.getDay() === 0;
 
     let clases = 'calendario-dia';
-    if (esPasado || esDomingo) clases += ' disabled';
+    if (esPasado) clases += ' disabled';
     if (esHoy) clases += ' hoy';
     if (state.fecha === fechaStr) clases += ' selected';
 
@@ -208,7 +216,10 @@ async function renderSlots(horario, citasOcupadas) {
   }
 
   const slots = generarSlots(horario.hora_inicio, horario.hora_fin, horario.duracion_slot || 30);
-  const ocupadas = new Set(citasOcupadas.map(c => c.hora_inicio));
+  const ocupadas = new Set(citasOcupadas.map(c => {
+    const h = c.hora_inicio;
+    return typeof h === 'string' ? h.substring(0, 5) : h;
+  }));
 
   let html = `<div class="slots-grid">`;
   slots.forEach(slot => {
@@ -262,8 +273,12 @@ function renderFormulario() {
           <input type="text" id="cliente-nombre" placeholder="Tu nombre completo" required>
         </div>
         <div class="form-group">
+          <label><i class="fas fa-envelope"></i> Correo electrónico</label>
+          <input type="email" id="cliente-email" placeholder="tu@email.com" required>
+        </div>
+        <div class="form-group">
           <label><i class="fas fa-phone"></i> Teléfono o WhatsApp</label>
-          <input type="text" id="cliente-contacto" placeholder="Tu número de contacto" required>
+          <input type="tel" id="cliente-contacto" placeholder="Ej: 3159780853" pattern="[0-9]{10,}" title="Ingresa al menos 10 dígitos" required>
         </div>
         <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Confirmar cita</button>
         <button type="button" class="btn-back" onclick="volverPaso(3)"><i class="fas fa-arrow-left"></i> Volver</button>
@@ -275,6 +290,7 @@ function renderFormulario() {
 function renderConfirmacion(cita) {
   const container = document.getElementById('confirmacion-container');
   const fechaFormateada = formatearFecha(state.fecha);
+  state.citaId = cita.id;
 
   container.innerHTML = `
     <div class="confirmacion-container">
@@ -286,14 +302,20 @@ function renderConfirmacion(cita) {
         <p><span><i class="fas fa-calendar-day"></i> Fecha</span> <strong>${fechaFormateada}</strong></p>
         <p><span><i class="fas fa-clock"></i> Hora</span> <strong>${state.horaInicio}</strong></p>
         <p><span><i class="fas fa-user"></i> Cliente</span> <strong>${cita.cliente_nombre}</strong></p>
+        <p><span><i class="fas fa-envelope"></i> Email</span> <strong>${cita.cliente_email}</strong></p>
         <p><span><i class="fas fa-phone"></i> Contacto</span> <strong>${cita.cliente_contacto}</strong></p>
       </div>
       <p style="color: var(--text-muted); margin-bottom: 25px;">
         <i class="fas fa-info-circle"></i> Llega 5 minutos antes de tu hora
       </p>
-      <button class="btn-nueva" onclick="nuevaCita()">
-        <i class="fas fa-plus"></i> Agendar otra cita
-      </button>
+      <div class="confirmacion-actions">
+        <button class="btn-nueva" onclick="nuevaCita()">
+          <i class="fas fa-plus"></i> Agendar otra cita
+        </button>
+        <button class="btn-cancelar" onclick="cancelarCita('${state.citaId}')">
+          <i class="fas fa-times"></i> Cancelar cita
+        </button>
+      </div>
     </div>
   `;
 }
@@ -397,6 +419,10 @@ async function cargarSlotsParaFecha() {
   const diaSemana = getDiaSemana(state.fecha);
   const horario = await cargarHorario(state.barberoId, diaSemana);
   const citas = await cargarCitasDelDia(state.barberoId, state.fecha);
+  
+  if (horario) {
+    state.duracionSlot = horario.duracion_slot || 60;
+  }
 
   const container = document.getElementById('slots-container');
   const fechaFormateada = formatearFecha(state.fecha);
@@ -423,6 +449,12 @@ function getDiaSemana(fechaStr) {
 
 function seleccionarSlot(hora, element) {
   state.horaInicio = hora;
+  
+  const [h, m] = hora.split(':').map(Number);
+  const duracion = state.duracionSlot || 60;
+  const minutosFin = h * 60 + m + duracion;
+  const horaFin = `${String(Math.floor(minutosFin / 60)).padStart(2, '0')}:${String(minutosFin % 60).padStart(2, '0')}`;
+  state.horaFin = horaFin;
 
   const slots = document.querySelectorAll('.slot-btn.disponible');
   slots.forEach(s => s.classList.remove('seleccionado'));
@@ -471,11 +503,31 @@ async function enviarFormulario(e) {
   e.preventDefault();
 
   const nombre = document.getElementById('cliente-nombre').value.trim();
+  const email = document.getElementById('cliente-email').value.trim();
   const contacto = document.getElementById('cliente-contacto').value.trim();
   const errorDiv = document.getElementById('form-error');
 
-  if (!nombre || !contacto) {
+  if (!nombre || !email || !contacto) {
     errorDiv.textContent = 'Por favor completa todos los campos.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Ingresa un correo electrónico válido.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  if (!/^\d+$/.test(contacto)) {
+    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Ingresa un número de contacto válido (solo dígitos).';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  if (contacto.length < 10) {
+    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> El número debe tener al menos 10 dígitos.';
     errorDiv.style.display = 'block';
     return;
   }
@@ -490,10 +542,11 @@ async function enviarFormulario(e) {
   const datos = {
     barbero_id: state.barberoId,
     cliente_nombre: nombre,
+    cliente_email: email,
     cliente_contacto: contacto,
     fecha: state.fecha,
     hora_inicio: state.horaInicio,
-    hora_fin: state.horaFin || '00:30:00',
+    hora_fin: state.horaFin,
     estado: 'confirmada'
   };
 
@@ -505,9 +558,31 @@ async function enviarFormulario(e) {
     return;
   }
 
+  // Enviar email de confirmación con Resend
+  try {
+    await fetch(`${state.SUPABASE_URL}/functions/v1/send-confirmation-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({
+        cita_id: data.id,
+        cliente_email: email,
+        cliente_nombre: nombre,
+        barbero_nombre: state.barberName,
+        fecha: state.fecha,
+        hora_inicio: state.horaInicio,
+        cliente_contacto: contacto
+      })
+    });
+  } catch (emailError) {
+    console.warn('Error enviando email:', emailError);
+  }
+
   errorDiv.style.display = 'none';
   document.getElementById('form-container').innerHTML = '';
   document.getElementById('confirmacion-container').innerHTML = '';
+  if (data && data.id) {
+    state.citaId = data.id;
+  }
   renderConfirmacion(data);
   mostrarPaso(5);
 }
@@ -519,6 +594,8 @@ function nuevaCita() {
   state.fecha = null;
   state.horaInicio = null;
   state.horaFin = null;
+  state.duracionSlot = 60;
+  state.citaId = null;
   state.mesActual = new Date().getMonth();
   state.anioActual = new Date().getFullYear();
 
@@ -545,6 +622,64 @@ function playVideo() {
   iframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1';
   placeholder.style.display = 'none';
   container.style.display = 'block';
+}
+
+async function cancelarCita(citaId) {
+  if (!citaId || citaId === 'sin-id') {
+    citaId = state.citaId;
+  }
+  console.log('ID de cita a cancelar:', citaId);
+  if (!citaId) {
+    alert('No se encontró el ID de la cita.');
+    return;
+  }
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+      <h3>¿Cancelar cita?</h3>
+      <p>La hora quedará disponible para otros clientes.</p>
+      <div class="modal-actions">
+        <button class="btn-cancelar-modal" id="btn-confirmar-cancelar">Sí, cancelar</button>
+        <button class="btn-volver-modal" id="btn-volver-cancelar">No, volver</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.style.display = 'flex';
+
+  document.getElementById('btn-confirmar-cancelar').addEventListener('click', async function() {
+    this.disabled = true;
+    this.textContent = 'Cancelando...';
+
+    const { error } = await window.supabaseClient
+      .from('citas')
+      .update({ estado: 'cancelada' })
+      .eq('id', citaId);
+
+    if (error) {
+      alert('Error al cancelar la cita. Intenta de nuevo.');
+      return;
+    }
+
+    const modalContent = modal.querySelector('.modal-content');
+    modalContent.innerHTML = `
+      <div class="modal-icon success"><i class="fas fa-check-circle"></i></div>
+      <h3>¡Cita cancelada!</h3>
+      <p>La hora ha sido liberada.</p>
+      <button class="btn-aceptar" id="btn-aceptar-cancelado">Aceptar</button>
+    `;
+
+    document.getElementById('btn-aceptar-cancelado').addEventListener('click', function() {
+      modal.remove();
+      nuevaCita();
+    });
+  });
+
+  document.getElementById('btn-volver-cancelar').addEventListener('click', function() {
+    modal.remove();
+  });
 }
 
 function toggleNav() {

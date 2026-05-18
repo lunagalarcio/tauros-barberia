@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS citas (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     barbero_id UUID REFERENCES barberos(id) ON DELETE SET NULL,
     cliente_nombre TEXT NOT NULL,
+    cliente_email TEXT NOT NULL,
     cliente_contacto TEXT NOT NULL,
     fecha DATE NOT NULL,
     hora_inicio TIME NOT NULL,
@@ -82,29 +83,33 @@ SELECT 'Silla 2', id, true FROM barberos WHERE nombre = 'Diego Reyes';
 INSERT INTO sillas (nombre, barbero_id, activa)
 SELECT 'Silla 3', id, true FROM barberos WHERE nombre = 'Alex Rivera';
 
--- Insertar Horarios (Lunes a Sábado 9:00-18:00, 30 min por slot)
+-- Insertar Horarios (Lunes a Sábado 9:00-20:00, Domingo 9:00-15:00, 60 min por slot)
 INSERT INTO horarios (barbero_id, dia_semana, hora_inicio, hora_fin, duracion_slot, activo)
-SELECT b.id, 'lunes', '09:00:00', '18:00:00', 30, true
+SELECT b.id, 'lunes', '09:00:00', '20:00:00', 60, true
 FROM barberos b;
 
 INSERT INTO horarios (barbero_id, dia_semana, hora_inicio, hora_fin, duracion_slot, activo)
-SELECT b.id, 'martes', '09:00:00', '18:00:00', 30, true
+SELECT b.id, 'martes', '09:00:00', '20:00:00', 60, true
 FROM barberos b;
 
 INSERT INTO horarios (barbero_id, dia_semana, hora_inicio, hora_fin, duracion_slot, activo)
-SELECT b.id, 'miercoles', '09:00:00', '18:00:00', 30, true
+SELECT b.id, 'miercoles', '09:00:00', '20:00:00', 60, true
 FROM barberos b;
 
 INSERT INTO horarios (barbero_id, dia_semana, hora_inicio, hora_fin, duracion_slot, activo)
-SELECT b.id, 'jueves', '09:00:00', '18:00:00', 30, true
+SELECT b.id, 'jueves', '09:00:00', '20:00:00', 60, true
 FROM barberos b;
 
 INSERT INTO horarios (barbero_id, dia_semana, hora_inicio, hora_fin, duracion_slot, activo)
-SELECT b.id, 'viernes', '09:00:00', '18:00:00', 30, true
+SELECT b.id, 'viernes', '09:00:00', '20:00:00', 60, true
 FROM barberos b;
 
 INSERT INTO horarios (barbero_id, dia_semana, hora_inicio, hora_fin, duracion_slot, activo)
-SELECT b.id, 'sabado', '09:00:00', '18:00:00', 30, true
+SELECT b.id, 'sabado', '09:00:00', '20:00:00', 60, true
+FROM barberos b;
+
+INSERT INTO horarios (barbero_id, dia_semana, hora_inicio, hora_fin, duracion_slot, activo)
+SELECT b.id, 'domingo', '09:00:00', '15:00:00', 60, true
 FROM barberos b;
 
 -- Insertar cita de ejemplo

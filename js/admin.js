@@ -228,8 +228,8 @@ function renderTabHorarios() {
     }
 
     const horarios = await cargarHorarios(barberoId);
-    const dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
-    const nombresDias = { lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles', jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado' };
+    const dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+    const nombresDias = { lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles', jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo' };
 
     let html = `
       <h2 style="color: #333; margin-bottom: 25px;">Horarios de Atención</h2>
@@ -260,7 +260,7 @@ function renderTabHorarios() {
 }
 
 async function guardarHorariosBarbero(barberoId) {
-  const dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+  const dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
   const horarios = dias.map(dia => ({
     dia,
     inicio: document.getElementById(`inicio-${dia}`).value,

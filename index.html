@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tauros Barbería | Tu Estilo, Tu Historia</title>
-  <meta name="description" content="Agenda tu cita en Tauros Barbería. Los mejores barberos para tu estilo.">
+  <title>Tauro's Barbería | Tu Estilo, Tu Historia</title>
+  <meta name="description" content="Agenda tu cita en Tauro's Barbería. Los mejores barberos para tu estilo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -13,10 +13,18 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <!-- Video Background Global -->
+  <div class="video-background">
+    <video autoplay muted loop playsinline>
+      <source src="images/video.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+  </div>
+
   <!-- Header -->
   <header class="header">
     <div class="container">
-      <a href="index.html" class="logo">TAUROS</a>
+      <a href="index.html" class="logo">TAURO'S</a>
       <nav class="nav-menu">
         <a href="#servicios">Servicios</a>
         <a href="#porque">Nosotros</a>
@@ -33,14 +41,15 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
+<!-- Hero Section -->
   <section class="hero">
+    <div class="hero-overlay"></div>
     <div class="hero-decoration"></div>
     <div class="hero-decoration"></div>
     <div class="hero-decoration"></div>
-    <h1>Tauros</h1>
-    <p class="tagline">Donde la tradición meets el estilo</p>
-    <a href="#sillas" class="btn-primary">Agenda tu cita ahora</a>
+    <div class="hero-content">
+      <img src="images/logodorado.png" alt="Tauro's Barbería" class="hero-logo">
+    </div>
   </section>
 
   <!-- Servicios Section -->
@@ -125,13 +134,13 @@
   <!-- Por qué elegirnos Section -->
   <section class="porque-section" id="porque">
     <div class="container">
-      <h2 class="section-title">¿Por qué elegir Tauros?</h2>
+      <h2 class="section-title">¿Por qué elegir Tauro's?</h2>
       <p class="section-subtitle">Más que una barbería, una experiencia</p>
 
       <div class="porque-video-wrapper">
         <div class="porque-video">
           <div class="video-placeholder" id="video-placeholder" onclick="playVideo()">
-            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&h=450&fit=crop" alt="Barbería Tauros" id="video-thumbnail">
+            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&h=450&fit=crop" alt="Barbería Tauro's" id="video-thumbnail">
             <div class="video-play-btn" id="video-play-btn">
               <i class="fas fa-play"></i>
             </div>
@@ -141,7 +150,7 @@
           </div>
         </div>
         <div class="porque-video-text">
-          <h3>Descubre la experiencia Tauros</h3>
+          <h3>Descubre la experiencia Tauro's</h3>
           <p>Cada corte es una obra de arte. Nuestro equipo de expertos transformará tu estilo con técnicas de vanguardia y atención personalizada.</p>
           <a href="#sillas" class="video-cta">Agenda tu cita</a>
         </div>
@@ -167,27 +176,7 @@
         </div>
       </div>
 
-      <div class="porque-stats">
-        <div class="stat-item">
-          <div class="stat-number">+5,000</div>
-          <div class="stat-label">Clientes satisfechos</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <div class="stat-number">5</div>
-          <div class="stat-label">Años de experiencia</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <div class="stat-number">4.9</div>
-          <div class="stat-label">Calificación Google</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <div class="stat-number">100%</div>
-          <div class="stat-label">Recomendación</div>
-        </div>
-      </div>
+      
     </div>
   </section>
 
@@ -295,6 +284,28 @@
     </div>
   </section>
 
+  <!-- Mapa Section -->
+  <section class="mapa-section" id="ubicacion">
+    <div class="container">
+      <h2 class="section-title">Encuéntranos</h2>
+      <p class="section-subtitle">Visítanos en nuestra sede</p>
+      <div class="mapa-container">
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3923.567891234!2d-73.1198!3d7.1194!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e6847f2e1234567%3A0x1234567890abcdef!2sCl.%2010%20%2323-34%2C%20Bucaramanga%2C%20Santander!5e0!3m2!1ses!2sco!4v1700000000000!5m2!1ses!2sco"
+          width="100%" 
+          height="350" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+      <div class="mapa-info">
+        <p><i class="fas fa-map-marker-alt"></i> Cl. 10 #23-34, Bucaramanga, Santander 68001</p>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="footer" id="contacto">
     <div class="footer-decoration"></div>
@@ -302,15 +313,14 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="footer-logo-wrapper">
-            <div class="footer-logo-main">TAUROS</div>
+            <div class="footer-logo-main">TAURO'S</div>
             <div class="footer-tagline">Barbería Premium</div>
           </div>
           <p class="footer-description">Tradición y estilo en cada corte. Los mejores barberos para tu mejor versión.</p>
           <div class="footer-social">
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-            <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+            <a href="https://www.instagram.com/taurosbarberia/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/people/TauroS-Barber%C3%ADa/100087722045292/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://api.whatsapp.com/send/?phone=573159780853&text&type=phone_number&app_absent=0" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           </div>
         </div>
 
@@ -318,12 +328,12 @@
           <h4><i class="fas fa-map-marker-alt"></i> Ubicación</h4>
           <div class="footer-location">
             <p class="footer-address">
-              <strong>Av. Insurgentes Sur #1822</strong><br>
-              Col. Florida, Benito Juárez<br>
-              CDMX, 01030
+              <strong>Cl. 10 #23-34</strong><br>
+              Bucaramanga, Santander<br>
+              68001, Colombia
             </p>
-            <a href="https://maps.google.com" target="_blank" class="footer-map-link">
-              <i class="fas fa-external-link-alt"></i> Ver en Google Maps
+            <a href="#ubicacion" class="footer-map-link">
+              <i class="fas fa-external-link-alt"></i> Ver ubicación
             </a>
           </div>
         </div>
@@ -331,13 +341,9 @@
         <div class="footer-section">
           <h4><i class="fas fa-clock"></i> Horarios</h4>
           <ul class="footer-hours">
-            <li><span>Lunes</span><span>9:00 AM - 8:00 PM</span></li>
-            <li><span>Martes</span><span>9:00 AM - 8:00 PM</span></li>
-            <li><span>Miércoles</span><span>9:00 AM - 8:00 PM</span></li>
-            <li><span>Jueves</span><span>9:00 AM - 8:00 PM</span></li>
-            <li><span>Viernes</span><span>9:00 AM - 9:00 PM</span></li>
-            <li><span>Sábado</span><span>10:00 AM - 9:00 PM</span></li>
-            <li><span>Domingo</span><span>Cerrado</span></li>
+            <li><span>Lunes - Sábado</span><span>9:00 AM - 8:00 PM</span></li>
+            <li><span>Domingo</span><span>9:00 AM - 3:00 PM</span></li>
+            <li><span>Festivos</span><span>Cerrado</span></li>
           </ul>
         </div>
 
@@ -363,7 +369,7 @@
       <div class="footer-bottom">
         <div class="footer-divider"></div>
         <div class="footer-bottom-content">
-          <p>&copy; 2026 Tauros Barbería. Todos los derechos reservados.</p>
+          <p>&copy; 2026 Tauro's Barbería. Todos los derechos reservados.</p>
           <div class="footer-badges">
             <span><i class="fas fa-award"></i> Servicio Premium</span>
             <span><i class="fas fa-star"></i> +5 años de experiencia</span>
@@ -372,6 +378,11 @@
       </div>
     </div>
   </footer>
+
+  <!-- WhatsApp Flotante -->
+  <a href="https://api.whatsapp.com/send/?phone=573159780853&text&type=phone_number&app_absent=0" target="_blank" class="whatsapp-float">
+    <i class="fab fa-whatsapp"></i>
+  </a>
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
