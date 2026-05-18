@@ -77,6 +77,11 @@ CREATE POLICY "Public insert citas" ON citas FOR INSERT WITH CHECK (
 DROP POLICY IF EXISTS "Public update citas" ON citas;
 DROP POLICY IF EXISTS "Public delete citas" ON citas;
 
+-- Política para que clientes puedan cancelar sus propias citas
+CREATE POLICY "Public update citas" ON citas FOR UPDATE USING (true) WITH CHECK (
+    estado = 'cancelada'
+);
+
 -- Tabla para almacenar admin (solo lectura)
 -- Los admin se gestionan vía Edge Functions, no tabla pública
 

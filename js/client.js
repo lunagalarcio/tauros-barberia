@@ -713,9 +713,12 @@ async function cancelarCita(citaId) {
       .eq('id', citaId);
 
     if (error) {
-      alert('Error al cancelar la cita. Intenta de nuevo.');
+      alert('Error al cancelar la cita: ' + error.message);
+      console.error('Error cancelando:', error);
       return;
     }
+
+    console.log('Cita cancelada correctamente, ID:', citaId);
 
     const modalContent = modal.querySelector('.modal-content');
     modalContent.innerHTML = `
