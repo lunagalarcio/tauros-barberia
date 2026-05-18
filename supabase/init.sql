@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS horarios (
     dia_semana TEXT NOT NULL,
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
-    duracion_slot INTEGER DEFAULT 30,
+    duracion_slot INTEGER DEFAULT 60,
     activo BOOLEAN DEFAULT true,
     UNIQUE(barbero_id, dia_semana)
 );
