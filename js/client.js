@@ -86,7 +86,7 @@ async function guardarCita(datos) {
 
 // ── Generador de slots ──
 
-function generarSlots(horaInicio, horaFin, duracionMinutos) {
+function generarSlots(horaInicio, horaFin, duracionMinutos, fechaSeleccionada) {
   const slots = [];
   const [hInicio, mInicio] = horaInicio.split(':').map(Number);
   const [hFin, mFin] = horaFin.split(':').map(Number);
@@ -94,14 +94,36 @@ function generarSlots(horaInicio, horaFin, duracionMinutos) {
   let minutosActual = hInicio * 60 + mInicio;
   const minutosFin = hFin * 60 + mFin;
 
+  const esHoy = esFechaHoy(fechaSeleccionada);
+  const horaActual = new Date();
+  const minutosAhora = horaActual.getHours() * 60 + horaActual.getMinutes();
+
   while (minutosActual + duracionMinutos <= minutosFin) {
     const horas = Math.floor(minutosActual / 60);
     const mins = minutosActual % 60;
-    slots.push(`${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`);
+    const slotHora = `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+    const minutosSlot = horas * 60 + mins;
+
+    let bloqueado = false;
+    if (esHoy && minutosSlot < minutosAhora) {
+      bloqueado = true;
+    }
+
+    slots.push({
+      hora: slotHora,
+      bloqueado: bloqueado
+    });
     minutosActual += duracionMinutos;
   }
 
   return slots;
+}
+
+function esFechaHoy(fechaStr) {
+  if (!fechaStr) return false;
+  const fecha = new Date(fechaStr + 'T00:00:00');
+  const hoy = new Date();
+  return fecha.toDateString() === hoy.toDateString();
 }
 
 // ── Funciones de UI ──
@@ -213,21 +235,46 @@ async function renderSlots(horario, citasOcupadas) {
     return;
   }
 
-  const slots = generarSlots(horario.hora_inicio, horario.hora_fin, horario.duracion_slot || 30);
+  const slots = generarSlots(horario.hora_inicio, horario.hora_fin, horario.duracion_slot || 30, state.fecha);
   const ocupadas = new Set(citasOcupadas.map(c => {
     const h = c.hora_inicio;
     return typeof h === 'string' ? h.substring(0, 5) : h;
   }));
 
   let html = `<div class="slots-grid">`;
+  const esHoy = esFechaHoy(state.fecha);
+  let horasBloqueadasHoy = 0;
+
   slots.forEach(slot => {
-    const estaOcupada = ocupadas.has(slot);
-    const clase = estaOcupada ? 'ocupado' : 'disponible';
-    const disabled = estaOcupada ? 'disabled' : '';
-    const icono = estaOcupada ? '<i class="fas fa-lock"></i>' : '<i class="far fa-clock"></i>';
-    html += `<button class="slot-btn ${clase}" data-hora="${slot}" ${disabled}>${icono} ${slot}</button>`;
+    const estaOcupada = ocupadas.has(slot.hora);
+    const estaBloqueado = slot.bloqueado;
+
+    let clase = '';
+    let disabled = '';
+    let icono = '';
+
+    if (estaOcupada) {
+      clase = 'ocupado';
+      disabled = 'disabled';
+      icono = '<i class="fas fa-lock"></i>';
+    } else if (estaBloqueado) {
+      clase = 'bloqueado-pasado';
+      disabled = 'disabled';
+      icono = '<i class="fas fa-clock"></i>';
+      if (esHoy) horasBloqueadasHoy++;
+    } else {
+      clase = 'disponible';
+      icono = '<i class="far fa-clock"></i>';
+    }
+
+    const labelHora = estaBloqueado ? `${slot.hora} (pasada)` : slot.hora;
+    html += `<button class="slot-btn ${clase}" data-hora="${slot.hora}" ${disabled}>${icono} ${labelHora}</button>`;
   });
   html += '</div>';
+
+  if (esHoy && horasBloqueadasHoy > 0) {
+    html = `<p style="color: var(--text-muted); text-align: center; margin-bottom: 16px; font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Las horas pasadas no están disponibles</p>` + html;
+  }
 
   container.innerHTML = html;
 

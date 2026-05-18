@@ -1661,6 +1661,14 @@ input, select, textarea {
   text-decoration: line-through;
 }
 
+.slot-btn.bloqueado-pasado {
+  background: rgba(102, 102, 102, 0.15);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+  border: 1px solid rgba(102, 102, 102, 0.2);
+}
+
 .slot-btn.seleccionado {
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
   color: var(--bg);
