@@ -1,7 +1,5 @@
 // ── Estado global ──
 const state = {
-  SUPABASE_URL: 'https://amhtrwrucsgfbkswhttk.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaHRyd3J1Y3NnZmJrc3dodHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NDQxNjMsImV4cCI6MjA5MzQyMDE2M30.uN-1kwj3H_CmRlB51nOhW_7INMoj0Cq-OlNAjwKMWPY',
   barberoId: null,
   barberName: '',
   barberEspecialidad: '',
