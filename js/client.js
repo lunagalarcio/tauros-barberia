@@ -382,7 +382,7 @@ function renderConfirmacion(cita) {
         <i class="fas fa-info-circle"></i> Llega 5 minutos antes de tu hora
       </p>
       <div class="confirmacion-actions">
-        <button class="btn-nueva" onclick="nuevaCite()">
+        <button class="btn-nueva" onclick="nuevaCita()">
           <i class="fas fa-plus"></i> Agendar otra cita
         </button>
         <button class="btn-cancelar" onclick="cancelarCita('${state.citaId}')">

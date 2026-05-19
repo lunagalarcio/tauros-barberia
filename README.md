@@ -107,4 +107,4 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 - **Despliegue**: Vercel (estático)
 
 ## Admin
-- **Password**: tauros2024
+- **Password**: tauros2024secure
