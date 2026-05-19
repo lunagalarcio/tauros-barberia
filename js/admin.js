@@ -1,6 +1,6 @@
 // ── Auth segura con Edge Function ──
-const SUPABASE_URL = 'https://amhtrwrucsgfbkswhttk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaHRyd3J1Y3NnZmJrc3dodHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NDQxNjMsImV4cCI6MjA5MzQyMDE2M30.uN-1kwj3H_CmRlB51nOhW_7INMoj0Cq-OlNAjwKMWPY';
+const ADMIN_SUPABASE_URL = 'https://amhtrwrucsgfbkswhttk.supabase.co';
+const ADMIN_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaHRyd3J1Y3NnZmJrc3dodHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NDQxNjMsImV4cCI6MjA5MzQyMDE2M30.uN-1kwj3H_CmRlB51nOhW_7INMoj0Cq-OlNAjwKMWPY';
 
 function guardarToken(token) {
   try {
@@ -44,11 +44,11 @@ async function verificarAuth() {
 
 async function login(password) {
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/admin-auth`, {
+    const response = await fetch(`${ADMIN_SUPABASE_URL}/functions/v1/admin-auth`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        'Authorization': `Bearer ${ADMIN_SUPABASE_KEY}`
       },
       body: JSON.stringify({ password })
     });
