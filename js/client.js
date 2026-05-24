@@ -637,6 +637,23 @@ async function enviarFormulario(e) {
   if (data && data.id) {
     state.citaId = data.id;
   }
+
+  // Enviar confirmación por correo
+  fetch('https://amhtrwrucsgfbkswhttk.supabase.co/functions/v1/send-confirmation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaHRyd3J1Y3NnZmJrc3dodHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NDQxNjMsImV4cCI6MjA5MzQyMDE2M30.uN-1kwj3H_CmRlB51nOhW_7INMoj0Cq-OlNAjwKMWPY'
+    },
+    body: JSON.stringify({
+      cliente_email: email,
+      cliente_nombre: nombre,
+      barbero_nombre: state.barberName,
+      fecha: state.fecha,
+      hora: state.horaInicio
+    })
+  }).catch(e => console.error('Error enviando correo:', e));
+
   renderConfirmacion(data);
   mostrarPaso(5);
 }
