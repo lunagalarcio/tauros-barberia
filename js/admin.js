@@ -506,6 +506,219 @@ function mostrarTab(tab) {
       });
     });
   }
+
+  if (tab === 'estadisticas') {
+    renderEstadisticas();
+  }
+}
+
+// ── Estadísticas ──
+
+async function renderEstadisticas() {
+  const container = document.getElementById('estadisticas-content');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando estadísticas...</p></div>';
+
+  const [citas, barberos] = await Promise.all([
+    cargarTodasLasCitas(),
+    cargarBarberos()
+  ]);
+
+  if (!citas.length) {
+    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">No hay citas registradas</p>';
+    return;
+  }
+
+  const stats = calcularEstadisticas(citas, barberos);
+
+  container.innerHTML = `
+    <div class="stats-page">
+      <div class="stats-header">
+        <h2>Estadísticas</h2>
+        <p>${citas.length} citas registradas</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon citas"><i class="fas fa-calendar-check"></i></div>
+          <div class="stat-card-body">
+            <span class="stat-card-number">${citas.length}</span>
+            <span class="stat-card-label">Total citas</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon barberos"><i class="fas fa-user-tie"></i></div>
+          <div class="stat-card-body">
+            <span class="stat-card-number">${barberos.filter(b => b.activo).length}</span>
+            <span class="stat-card-label">Barberos activos</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon promedio"><i class="fas fa-chart-line"></i></div>
+          <div class="stat-card-body">
+            <span class="stat-card-number">${stats.promedioDiario}</span>
+            <span class="stat-card-label">Citas/día (promedio)</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon mes"><i class="fas fa-calendar-alt"></i></div>
+          <div class="stat-card-body">
+            <span class="stat-card-number">${stats.citasEsteMes}</span>
+            <span class="stat-card-label">Citas este mes</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-charts">
+        <div class="stats-chart-card">
+          <h3><i class="fas fa-trophy"></i> Barbero más solicitado</h3>
+          <div class="stats-barberos-ranking">
+            ${stats.rankingBarberos.map((b, i) => `
+              <div class="ranking-item">
+                <span class="ranking-pos">#${i + 1}</span>
+                <span class="ranking-name">${b.nombre}</span>
+                <span class="ranking-bar"><span style="width: ${b.porcentaje}%"></span></span>
+                <span class="ranking-count">${b.total} citas</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="stats-chart-card">
+          <h3><i class="fas fa-calendar-day"></i> Días con más citas</h3>
+          <div class="stats-dias">
+            ${stats.diasSemana.map(d => `
+              <div class="dia-item">
+                <span class="dia-label">${d.nombre}</span>
+                <span class="dia-bar"><span style="width: ${d.porcentaje}%"></span></span>
+                <span class="dia-count">${d.total}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-charts">
+        <div class="stats-chart-card">
+          <h3><i class="fas fa-chart-bar"></i> Citas por mes</h3>
+          <div class="stats-meses">
+            ${stats.meses.map(m => `
+              <div class="mes-item">
+                <span class="mes-label">${m.nombre}</span>
+                <span class="mes-bar"><span style="width: ${m.porcentaje}%"></span></span>
+                <span class="mes-count">${m.total}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="stats-chart-card">
+          <h3><i class="fas fa-clock"></i> Horas más concurridas</h3>
+          <div class="stats-horas">
+            ${stats.horas.map(h => `
+              <div class="hora-item">
+                <span class="hora-label">${h.hora}</span>
+                <span class="hora-bar"><span style="width: ${h.porcentaje}%"></span></span>
+                <span class="hora-count">${h.total}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function cargarTodasLasCitas() {
+  const { data, error } = await window.supabaseClient
+    .from('citas')
+    .select(`
+      *,
+      barberos(nombre)
+    `)
+    .order('fecha', { ascending: false });
+
+  if (error) {
+    console.error('Error cargando citas:', error);
+    return [];
+  }
+
+  return (data || []).map(c => ({
+    ...c,
+    nombre_barbero: c.barberos?.nombre || 'Sin asignar'
+  }));
+}
+
+function calcularEstadisticas(citas, barberos) {
+  const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  const hoy = new Date();
+  const mesActual = hoy.getMonth();
+  const anioActual = hoy.getFullYear();
+
+  // Citas este mes
+  const citasEsteMes = citas.filter(c => {
+    const f = new Date(c.fecha + 'T00:00:00');
+    return f.getMonth() === mesActual && f.getFullYear() === anioActual;
+  });
+
+  // Promedio diario (últimos 30 días)
+  const hace30Dias = new Date();
+  hace30Dias.setDate(hace30Dias.getDate() - 30);
+  const citasUltimos30 = citas.filter(c => new Date(c.fecha + 'T00:00:00') >= hace30Dias);
+  const promedioDiario = citasUltimos30.length ? Math.round(citasUltimos30.length / 30 * 10) / 10 : 0;
+
+  // Ranking de barberos
+  const conteoBarberos = {};
+  citas.filter(c => c.nombre_barbero !== 'Sin asignar').forEach(c => {
+    conteoBarberos[c.nombre_barbero] = (conteoBarberos[c.nombre_barbero] || 0) + 1;
+  });
+  const maxBarbero = Math.max(...Object.values(conteoBarberos), 1);
+  const rankingBarberos = Object.entries(conteoBarberos)
+    .map(([nombre, total]) => ({ nombre, total, porcentaje: Math.round(total / maxBarbero * 100) }))
+    .sort((a, b) => b.total - a.total);
+
+  // Días de la semana
+  const conteoDias = [0, 0, 0, 0, 0, 0, 0];
+  citas.forEach(c => {
+    const dia = new Date(c.fecha + 'T00:00:00').getDay();
+    conteoDias[dia]++;
+  });
+  const maxDia = Math.max(...conteoDias, 1);
+  const diasSemana = nombresDias.map((nombre, i) => ({
+    nombre,
+    total: conteoDias[i],
+    porcentaje: Math.round(conteoDias[i] / maxDia * 100)
+  }));
+
+  // Citas por mes (últimos 6)
+  const conteoMeses = {};
+  citas.forEach(c => {
+    const f = new Date(c.fecha + 'T00:00:00');
+    const key = `${f.getFullYear()}-${f.getMonth()}`;
+    conteoMeses[key] = (conteoMeses[key] || 0) + 1;
+  });
+  const mesesOrdenados = Object.entries(conteoMeses)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-6);
+  const maxMes = Math.max(...mesesOrdenados.map(([, t]) => t), 1);
+  const meses = mesesOrdenados.map(([key, total]) => {
+    const [anio, mes] = key.split('-').map(Number);
+    return { nombre: `${nombresMeses[mes]} ${anio}`, total, porcentaje: Math.round(total / maxMes * 100) };
+  });
+
+  // Horas más concurridas
+  const conteoHoras = {};
+  citas.forEach(c => {
+    const hora = c.hora_inicio ? c.hora_inicio.substring(0, 5) : '00:00';
+    conteoHoras[hora] = (conteoHoras[hora] || 0) + 1;
+  });
+  const maxHora = Math.max(...Object.values(conteoHoras), 1);
+  const horas = Object.entries(conteoHoras)
+    .map(([hora, total]) => ({ hora, total, porcentaje: Math.round(total / maxHora * 100) }))
+    .sort((a, b) => a.hora.localeCompare(b.hora));
+
+  return { promedioDiario, citasEsteMes: citasEsteMes.length, rankingBarberos, diasSemana, meses, horas };
 }
 
 // ── Event listeners ──

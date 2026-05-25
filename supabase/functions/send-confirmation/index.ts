@@ -35,6 +35,7 @@ serve(async (req) => {
     })
   })
 
-  const data = await res.json()
-  return new Response(JSON.stringify(data), { headers: { ...corsHeaders, "Content-Type": "application/json" } })
+  const data = await res.text()
+  console.log('Resend status:', res.status, data)
+  return new Response(JSON.stringify({ status: res.status, body: data }), { headers: { ...corsHeaders, "Content-Type": "application/json" } })
 })
