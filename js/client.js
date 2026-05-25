@@ -829,6 +829,15 @@ function mostrarMensajeCancelacion(tipo, texto) {
   setTimeout(() => msg.style.display = 'none', 4000);
 }
 
+function toggleCancelar(e) {
+  e.preventDefault();
+  const form = document.getElementById('cancelar-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (form.style.display === 'block') {
+    document.getElementById('codigo-cancelacion-input').focus();
+  }
+}
+
 function toggleNav() {
   const nav = document.querySelector('.nav-menu');
   nav.classList.toggle('active');

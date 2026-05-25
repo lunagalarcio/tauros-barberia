@@ -3248,29 +3248,31 @@ tr:hover td {
   color: var(--text-secondary);
 }
 
-/* Cancelar cita */
-.cancelar-section {
-  padding: 80px 0 100px;
-  background: var(--surface);
-  position: relative;
+/* Cancelar cita toggle */
+.cancelar-toggle-wrapper {
+  text-align: center;
+  margin-top: 40px;
 }
 
-.cancelar-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(239, 184, 16, 0.3), transparent);
+.cancelar-toggle-link {
+  display: inline-block;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.3s ease;
 }
 
-.cancelar-box {
-  max-width: 500px;
-  margin: 0 auto;
+.cancelar-toggle-link:hover {
+  color: var(--accent);
+}
+
+.cancelar-form {
+  max-width: 400px;
+  margin: 20px auto 0;
+  padding: 24px;
   background: var(--surface-2);
-  border-radius: 20px;
-  padding: 36px;
+  border-radius: 16px;
   border: 1px solid rgba(239, 184, 16, 0.1);
 }
 
@@ -3281,12 +3283,12 @@ tr:hover td {
 
 .cancelar-input-group input {
   flex: 1;
-  padding: 16px 18px;
+  padding: 14px 16px;
   background: var(--surface-3);
   border: 1px solid rgba(239, 184, 16, 0.1);
   border-radius: 12px;
   color: var(--text);
-  font-size: 1.1rem;
+  font-size: 1rem;
   letter-spacing: 3px;
   text-align: center;
   font-weight: 600;
@@ -3302,19 +3304,20 @@ tr:hover td {
 .cancelar-input-group input::placeholder {
   letter-spacing: 1px;
   font-weight: 400;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
 }
 
 .btn-cancelar-cita {
-  padding: 16px 24px;
+  padding: 14px 20px;
   background: transparent;
   color: var(--danger);
   border: 1px solid var(--danger);
   border-radius: 12px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   white-space: nowrap;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
@@ -3325,8 +3328,18 @@ tr:hover td {
 
 .cancelar-msg {
   text-align: center;
-  margin-top: 16px;
-  font-size: 0.9rem;
+  margin-top: 14px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .cancelar-input-group {
+    flex-direction: column;
+  }
+
+  .btn-cancelar-cita {
+    width: 100%;
+  }
 }
 
 /* Código de cancelación en confirmación */

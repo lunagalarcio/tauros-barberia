@@ -191,6 +191,16 @@
           <p>Cargando barberos...</p>
         </div>
       </div>
+      <div class="cancelar-toggle-wrapper">
+        <a href="#" class="cancelar-toggle-link" onclick="toggleCancelar(event)">Cancelar cita</a>
+        <div id="cancelar-form" class="cancelar-form" style="display: none;">
+          <div class="cancelar-input-group">
+            <input type="text" id="codigo-cancelacion-input" placeholder="Ej: TAU-A3F8" maxlength="8" style="text-transform: uppercase;">
+            <button class="btn-cancelar-cita" onclick="cancelarPorCodigo()">Cancelar</button>
+          </div>
+          <p id="codigo-cancelacion-msg" class="cancelar-msg" style="display: none;"></p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -302,21 +312,6 @@
       </div>
       <div class="mapa-info">
         <p><i class="fas fa-map-marker-alt"></i> Cl. 10 #23-34, Bucaramanga, Santander 68001</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Cancelar Cita Section -->
-  <section class="cancelar-section">
-    <div class="container">
-      <h2 class="section-title">Cancelar cita</h2>
-      <p class="section-subtitle">Ingresa tu código de cancelación</p>
-      <div class="cancelar-box">
-        <div class="cancelar-input-group">
-          <input type="text" id="codigo-cancelacion-input" placeholder="Ej: TAU-A3F8" maxlength="8" style="text-transform: uppercase;">
-          <button class="btn-cancelar-cita" onclick="cancelarPorCodigo()">Cancelar cita</button>
-        </div>
-        <p id="codigo-cancelacion-msg" class="cancelar-msg" style="display: none;"></p>
       </div>
     </div>
   </section>
