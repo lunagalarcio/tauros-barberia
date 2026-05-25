@@ -2090,6 +2090,35 @@ input, select, textarea {
   background: var(--accent-light);
 }
 
+.modal-cita-info {
+  background: var(--surface-2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  text-align: left;
+}
+
+.modal-cita-info p {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(239, 184, 16, 0.06);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.modal-cita-info p:last-child {
+  border-bottom: none;
+}
+
+.modal-cita-info span {
+  color: var(--text-muted);
+}
+
+.modal-cita-info strong {
+  color: var(--text);
+}
+
 /* Mensajes */
 .message {
   padding: 16px 20px;

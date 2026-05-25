@@ -801,21 +801,64 @@ async function cancelarPorCodigo() {
     return;
   }
 
-  const confirmar = confirm(`¿Cancelar tu cita con ${data.cliente_nombre} el ${data.fecha} a las ${data.hora_inicio?.substring(0, 5)}?`);
-  if (!confirmar) return;
+  mostrarModalConfirmacionCancelacion(data, input);
 
-  const { error: updateError } = await window.supabaseClient
-    .from('citas')
-    .update({ estado: 'cancelada' })
-    .eq('id', data.id);
+  function mostrarModalConfirmacionCancelacion(cita, inputRef) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+        <h3>Cancelar cita</h3>
+        <div class="modal-cita-info">
+          <p><span>Barbero</span> <strong></strong></p>
+          <p><span>Cliente</span> <strong></strong></p>
+          <p><span>Fecha</span> <strong></strong></p>
+          <p><span>Hora</span> <strong></strong></p>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">La hora quedará disponible para otros clientes.</p>
+        <div class="modal-actions">
+          <button class="btn-cancelar-modal" id="btn-conf-cancelar">Sí, cancelar</button>
+          <button class="btn-volver-modal" id="btn-volv-cancelar">No, volver</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.style.display = 'flex';
 
-  if (updateError) {
-    alert('Error al cancelar la cita');
-    return;
+    const details = overlay.querySelector('.modal-cita-info');
+    const items = details.querySelectorAll('p strong');
+    const barberoN = cita.barberos?.nombre || 'Sin asignar';
+    items[0].textContent = barberoN;
+    items[1].textContent = cita.cliente_nombre;
+    items[2].textContent = cita.fecha;
+    items[3].textContent = cita.hora_inicio?.substring(0, 5);
+
+    document.getElementById('btn-conf-cancelar').addEventListener('click', async function () {
+      this.disabled = true;
+      this.textContent = 'Cancelando...';
+
+      const { error: updateError } = await window.supabaseClient
+        .from('citas')
+        .update({ estado: 'cancelada' })
+        .eq('id', cita.id);
+
+      if (updateError) {
+        alert('Error al cancelar la cita');
+        return;
+      }
+
+      overlay.querySelector('.modal-content').innerHTML = `
+        <div class="modal-icon success"><i class="fas fa-check-circle"></i></div>
+        <h3>¡Cita cancelada!</h3>
+        <p>La hora ha sido liberada.</p>
+        <button class="btn-aceptar" id="btn-aceptar-cancelado">Aceptar</button>
+      `;
+      document.getElementById('btn-aceptar-cancelado').addEventListener('click', () => { overlay.remove(); inputRef.value = ''; });
+    });
+
+    document.getElementById('btn-volv-cancelar').addEventListener('click', () => overlay.remove());
   }
-
-  mostrarMensajeCancelacion('success', 'Cita cancelada correctamente. La hora ha sido liberada.');
-  input.value = '';
 }
 
 function mostrarMensajeCancelacion(tipo, texto) {
