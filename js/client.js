@@ -785,7 +785,7 @@ async function cancelarPorCodigo() {
 
   const { data, error } = await window.supabaseClient
     .from('citas')
-    .select('*')
+    .select('*, barberos(nombre)')
     .eq('codigo_cancelacion', codigo)
     .eq('estado', 'confirmada')
     .maybeSingle();
