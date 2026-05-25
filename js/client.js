@@ -15,6 +15,7 @@ const state = {
 };
 
 // ── Sanitización para prevenir XSS ──
+// Sanitiza texto para prevenir ataques XSS
 function sanitizeHTML(str) {
   if (typeof str !== 'string') return '';
   const div = document.createElement('div');
@@ -22,6 +23,7 @@ function sanitizeHTML(str) {
   return div.innerHTML;
 }
 
+// Escapa caracteres especiales para atributos HTML
 function escapeAttr(str) {
   if (typeof str !== 'string') return '';
   return str.replace(/[&<>"']/g, char => ({
@@ -33,7 +35,9 @@ function escapeAttr(str) {
   }[char]));
 }
 
+// Genera un código único de cancelación para la cita
 function generarCodigo() {
+  // Genera código único de cancelación: TAU-XXXX (letras y números sin ambiguos)
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let codigo = 'TAU-';
   for (let i = 0; i < 4; i++) codigo += chars[Math.floor(Math.random() * chars.length)];
@@ -42,6 +46,7 @@ function generarCodigo() {
 
 // ── Funciones de datos (Supabase) ──
 
+// Obtiene los barberos activos desde Supabase
 async function cargarSillas() {
   const { data, error } = await window.supabaseClient
     .from('barberos')
@@ -56,6 +61,7 @@ async function cargarSillas() {
   return data;
 }
 
+// Obtiene el horario de un barbero para un día específico
 async function cargarHorario(barberoId, diaSemana) {
   const { data, error } = await window.supabaseClient
     .from('horarios')
@@ -72,6 +78,7 @@ async function cargarHorario(barberoId, diaSemana) {
   return data;
 }
 
+// Obtiene las citas no canceladas de un barbero en una fecha
 async function cargarCitasDelDia(barberoId, fecha) {
   const { data, error } = await window.supabaseClient
     .from('citas')
@@ -87,6 +94,7 @@ async function cargarCitasDelDia(barberoId, fecha) {
   return data || [];
 }
 
+// Verifica si un horario está disponible
 async function verificarDisponibilidad(barberoId, fecha, horaInicio) {
   const citas = await cargarCitasDelDia(barberoId, fecha);
   const horaFormateada = horaInicio.substring(0, 5);
@@ -96,6 +104,7 @@ async function verificarDisponibilidad(barberoId, fecha, horaInicio) {
   });
 }
 
+// Guarda una nueva cita en la base de datos
 async function guardarCita(datos) {
   const { data, error } = await window.supabaseClient
     .from('citas')
@@ -112,6 +121,7 @@ async function guardarCita(datos) {
 
 // ── Generador de slots ──
 
+// Genera los slots de horario disponibles entre dos horas
 function generarSlots(horaInicio, horaFin, duracionMinutos, fechaSeleccionada) {
   const slots = [];
   const [hInicio, mInicio] = horaInicio.split(':').map(Number);
@@ -145,6 +155,7 @@ function generarSlots(horaInicio, horaFin, duracionMinutos, fechaSeleccionada) {
   return slots;
 }
 
+// Comprueba si una fecha es el día de hoy
 function esFechaHoy(fechaStr) {
   if (!fechaStr) return false;
   const fecha = new Date(fechaStr + 'T00:00:00');
@@ -154,6 +165,7 @@ function esFechaHoy(fechaStr) {
 
 // ── Funciones de UI ──
 
+// Renderiza las tarjetas de barberos disponibles
 function renderSillas(sillas) {
   const container = document.getElementById('sillas-container');
   container.innerHTML = '';
@@ -196,6 +208,7 @@ function renderSillas(sillas) {
   });
 }
 
+// Renderiza el calendario mensual para seleccionar fecha
 function renderCalendario() {
   const container = document.getElementById('calendario-container');
   const hoy = new Date();
@@ -252,6 +265,7 @@ function renderCalendario() {
   container.innerHTML = html;
 }
 
+// Renderiza los slots horarios disponibles y ocupados
 async function renderSlots(horario, citasOcupadas) {
   const container = document.getElementById('slots-container');
   container.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando horarios...</div>';
@@ -317,6 +331,7 @@ async function renderSlots(horario, citasOcupadas) {
   });
 }
 
+// Renderiza el formulario de datos del cliente
 function renderFormulario() {
   const container = document.getElementById('form-container');
   const fechaFormateada = formatearFecha(state.fecha);
@@ -362,6 +377,7 @@ function renderFormulario() {
   `;
 }
 
+// Renderiza la pantalla de confirmación de cita
 function renderConfirmacion(cita) {
   const container = document.getElementById('confirmacion-container');
   const fechaFormateada = formatearFecha(state.fecha);
@@ -407,11 +423,13 @@ function renderConfirmacion(cita) {
   `;
 }
 
+// Formatea una fecha en formato legible en español
 function formatearFecha(fechaStr) {
   const fecha = new Date(fechaStr + 'T00:00:00');
   return fecha.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+// Muestra el paso actual del wizard y oculta los demás
 function mostrarPaso(numero) {
   state.paso = numero;
   actualizarStepper(numero);
@@ -429,6 +447,7 @@ function mostrarPaso(numero) {
   }
 }
 
+// Actualiza el stepper según el paso actual
 function actualizarStepper(paso) {
   const steps = document.querySelectorAll('.step');
   steps.forEach((step, index) => {
@@ -441,6 +460,7 @@ function actualizarStepper(paso) {
   });
 }
 
+// Actualiza el display de la fecha seleccionada
 function actualizarDisplayFecha() {
   const display = document.getElementById('selected-date-display');
   if (!state.fecha) {
@@ -460,6 +480,7 @@ function actualizarDisplayFecha() {
 
 // ── Event handlers ──
 
+// Maneja la selección de un barbero y avanza al paso 2
 async function seleccionarBarbero(barbero, cardElement) {
   document.querySelectorAll('.silla-card').forEach(card => card.classList.remove('selected'));
   cardElement.classList.add('selected');
@@ -482,6 +503,7 @@ async function seleccionarBarbero(barbero, cardElement) {
   mostrarPaso(2);
 }
 
+// Maneja la selección de una fecha en el calendario
 function seleccionarFecha(fecha, element) {
   if (element.classList.contains('disabled')) return;
 
@@ -496,12 +518,14 @@ function seleccionarFecha(fecha, element) {
   if (btnNext) btnNext.disabled = false;
 }
 
+// Navega a la pantalla de selección de horario
 function irASlots() {
   if (!state.fecha) return;
   cargarSlotsParaFecha();
   mostrarPaso(3);
 }
 
+// Carga los slots disponibles para la fecha y barbero seleccionados
 async function cargarSlotsParaFecha() {
   const diaSemana = getDiaSemana(state.fecha);
   const horario = await cargarHorario(state.barberoId, diaSemana);
@@ -528,12 +552,14 @@ async function cargarSlotsParaFecha() {
   renderSlots(horario, citas);
 }
 
+// Obtiene el nombre del día de semana para una fecha
 function getDiaSemana(fechaStr) {
   const dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
   const fecha = new Date(fechaStr + 'T00:00:00');
   return dias[fecha.getDay()];
 }
 
+// Maneja la selección de un horario disponible
 function seleccionarSlot(hora, element) {
   state.horaInicio = hora;
   
@@ -551,12 +577,14 @@ function seleccionarSlot(hora, element) {
   if (btnNext) btnNext.disabled = false;
 }
 
+// Navega al formulario de confirmación de cita
 function irAFormulario() {
   if (!state.horaInicio) return;
   renderFormulario();
   mostrarPaso(4);
 }
 
+// Vuelve a la pantalla de horarios reiniciando la selección
 function irASlots() {
   if (!state.fecha) return;
   const btnNext = document.getElementById('btn-hora-next');
@@ -566,6 +594,7 @@ function irASlots() {
   mostrarPaso(3);
 }
 
+// Cambia el mes del calendario en la dirección indicada
 function cambiarMes(direccion) {
   state.mesActual += direccion;
   if (state.mesActual > 11) {
@@ -578,6 +607,7 @@ function cambiarMes(direccion) {
   renderCalendario();
 }
 
+// Retrocede al paso indicado del wizard
 function volverPaso(paso) {
   if (paso === 3) {
     state.horaInicio = null;
@@ -586,6 +616,7 @@ function volverPaso(paso) {
   mostrarPaso(paso);
 }
 
+// Procesa y envía el formulario para agendar la cita
 async function enviarFormulario(e) {
   e.preventDefault();
 
@@ -676,7 +707,9 @@ async function enviarFormulario(e) {
   mostrarPaso(5);
 }
 
+// Reinicia el estado y vuelve al paso 1 para agendar otra cita
 function nuevaCita() {
+  // Reinicia el estado y vuelve al paso 1 para agendar otra cita
   state.barberoId = null;
   state.barberName = '';
   state.barberEspecialidad = '';
@@ -699,10 +732,13 @@ function nuevaCita() {
 
 // ── Inicialización ──
 
+// Inicializa la página cargando los barberos disponibles
 function initClient() {
+  // Inicializa la página cargando los barberos disponibles
   cargarSillas().then(renderSillas);
 }
 
+// Reproduce el video promocional
 function playVideo() {
   const placeholder = document.getElementById('video-placeholder');
   const container = document.getElementById('video-container');
@@ -713,6 +749,7 @@ function playVideo() {
   container.style.display = 'block';
 }
 
+// Cancela una cita mostrando un modal de confirmación
 async function cancelarCita(citaId) {
   if (!citaId || citaId === 'sin-id') {
     citaId = state.citaId;
@@ -774,7 +811,11 @@ async function cancelarCita(citaId) {
   });
 }
 
+// ── Cancelar cita por código ──
+
+// Busca una cita por su código de cancelación y la cancela
 async function cancelarPorCodigo() {
+  // Busca la cita por código de cancelación y la cancela
   const input = document.getElementById('codigo-cancelacion-input');
   const codigo = input.value.trim().toUpperCase();
 
@@ -803,7 +844,9 @@ async function cancelarPorCodigo() {
 
   mostrarModalConfirmacionCancelacion(data, input);
 
+  // Muestra modal con datos de la cita y pide confirmación para cancelar
   function mostrarModalConfirmacionCancelacion(cita, inputRef) {
+    // Muestra modal con datos de la cita y pide confirmación para cancelar
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
@@ -861,7 +904,11 @@ async function cancelarPorCodigo() {
   }
 }
 
+// ── UI para cancelación ──
+
+// Muestra un mensaje temporal debajo del input de cancelación
 function mostrarMensajeCancelacion(tipo, texto) {
+  // Muestra mensaje temporal debajo del input de cancelación
   const msg = document.getElementById('codigo-cancelacion-msg');
   msg.innerHTML = tipo === 'success'
     ? `<span style="color: var(--available);"><i class="fas fa-check-circle"></i> ${texto}</span>`
@@ -872,7 +919,9 @@ function mostrarMensajeCancelacion(tipo, texto) {
   setTimeout(() => msg.style.display = 'none', 4000);
 }
 
+// Muestra u oculta el formulario de cancelación por código
 function toggleCancelar(e) {
+  // Muestra/oculta el formulario de cancelación por código
   e.preventDefault();
   const form = document.getElementById('cancelar-form');
   form.style.display = form.style.display === 'none' ? 'block' : 'none';
@@ -881,6 +930,7 @@ function toggleCancelar(e) {
   }
 }
 
+// Alterna la visibilidad del menú de navegación
 function toggleNav() {
   const nav = document.querySelector('.nav-menu');
   nav.classList.toggle('active');

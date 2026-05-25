@@ -1,22 +1,38 @@
-# Tauros Barbería - Sistema de Citas
+# Tauro's Barbería - Sistema de Citas
 
-Sistema de agendamiento de citas para barbería con panel de administración.
+Sistema de agendamiento de citas para barbería con panel de administración, estadísticas y cancelación por código.
 
 ## Estructura del Proyecto
 
 ```
 tauros-barberia/
-├── index.html        # Página del cliente
-├── admin.html        # Panel de administración
+├── index.html              # Página principal del cliente
+├── admin.html              # Panel de administración
 ├── js/
-│   ├── supabase.js   # Configuración de Supabase
-│   ├── client.js     # Lógica del módulo cliente
-│   └── admin.js      # Lógica del panel admin
+│   ├── supabase.js         # Configuración de Supabase
+│   ├── client.js           # Lógica del lado del cliente
+│   └── admin.js            # Lógica del panel admin
 ├── css/
-│   └── styles.css    # Estilos globales
-└── supabase/
-    └── init.sql      # Script de base de datos
+│   └── styles.css          # Estilos globales
+├── supabase/
+│   ├── init.sql            # Script de base de datos
+│   └── functions/
+│       └── send-confirmation/
+│           └── index.ts    # Edge Function para enviar correos
+└── images/                 # Imágenes del sitio
 ```
+
+## Características
+
+- **Agendamiento de citas** en 4 pasos (barbero, fecha, hora, formulario)
+- **Selección de barberos** con fotos y especialidades
+- **Calendario interactivo** para elegir fecha
+- **Slots de horario** con verificación en tiempo real
+- **Código único de cancelación** (ej: `TAU-A3F8`) para cancelar sin login
+- **Confirmación por correo** mediante Resend (Edge Function)
+- **Panel admin** con gestión de barberos, horarios y citas
+- **Estadísticas** en el admin (barbero más solicitado, días concurridos, horas pico)
+- **Bloqueo de horas pasadas** si se agenda el mismo día
 
 ## Configuración de Supabase
 
@@ -32,79 +48,74 @@ tauros-barberia/
 1. En el panel de Supabase, ve a **SQL Editor**
 2. Copia el contenido de `supabase/init.sql`
 3. Pega y ejecuta el script
-4. Verifica que se crearon las tablas y datos de ejemplo
+4. Ejecuta también: `ALTER TABLE citas ADD COLUMN IF NOT EXISTS codigo_cancelacion TEXT UNIQUE;`
 
 ### 3. Obtener Credenciales
 
-1. Ve a **Settings** (icono de engranaje) > **API**
-2. Copia el **Project URL** (algo como `https://xxxxx.supabase.co`)
-3. Copia la **anon public key** (emma bajo "Project API keys")
+1. Ve a **Settings > API**
+2. Copia el **Project URL** (`https://xxxxx.supabase.co`)
+3. Copia la **anon public key**
 
 ### 4. Configurar el Cliente
 
-Edita `js/supabase.js` y reemplaza:
+Edita `js/supabase.js` y reemplaza con tus credenciales.
 
-```javascript
-const SUPABASE_URL = 'TU_SUPABASE_URL_AQUI';
-const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY_AQUI';
+## Confirmación por Correo (Resend)
+
+### 1. Registrarse en Resend
+- Ve a [resend.com](https://resend.com) y crea una cuenta
+- Ve a **API Keys** y crea una nueva key
+
+### 2. Desplegar Edge Function
+```bash
+cd supabase
+supabase functions deploy send-confirmation
 ```
 
-Con los valores que copiaste:
+### 3. Configurar variable de entorno
+En Supabase Dashboard > Edge Functions > `send-confirmation` > Env:
+- Key: `RESEND_API_KEY`
+- Value: tu API key de Resend
 
-```javascript
-const SUPABASE_URL = 'https://xxxxx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-```
+### 4. Verificar dominio (opcional)
+Para que los correos lleguen a cualquier destinatario, agrega un dominio en Resend.
 
 ## Despliegue en Vercel
 
-### Opción 1: Despliegue Rápido (Recomendado)
+### Opción 1: Repositorio Git
+1. Sube el proyecto a GitHub
+2. Ve a [vercel.com](https://vercel.com) y conecta el repo
+3. Vercel detectará automáticamente que es estático
+4. Click en **Deploy**
 
-1. Ve a [vercel.com](https://vercel.com) e inicia sesión
-2. Clic en **Add New...** > **Project**
-3. Importa tu repositorio de GitHub o arrastra la carpeta `tauros-barberia`
-4. Vercel detectará automáticamente que es un sitio estático
-5. Clic en **Deploy**
-
-### Opción 2: Despliegue Manual
-
-1. Instala Vercel CLI: `npm i -g vercel`
-2. En la carpeta del proyecto: `vercel`
-3. Sigue las instrucciones en pantalla
+### Opción 2: CLI
+```bash
+npm i -g vercel
+vercel
+```
 
 ## Uso del Sistema
 
 ### Módulo Cliente (index.html)
-
-1. Abre la página y selecciona un barbero de las tarjetas
-2. Elige una fecha del calendario
-3. Selecciona un horario disponible (los ocupados aparecen en gris)
-4. Completa el formulario con nombre y contacto
-5. Recibe la confirmación de tu cita
+1. Selecciona un barbero
+2. Elige una fecha (días pasados bloqueados)
+3. Escoge un horario (horas pasadas bloqueadas si es hoy)
+4. Completa el formulario
+5. Recibe código de cancelación y correo de confirmación
+6. Para cancelar: ingresa el código debajo de los barberos
 
 ### Panel Admin (admin.html)
-
-1. Accede a `admin.html`
-2. Contraseña: `tauros2024`
-3. **Barberos**: Agregar, editar, activar/desactivar
-4. **Horarios**: Configurar horarios por día para cada barbero
-5. **Citas**: Ver todas las citas con filtros por fecha y barbero
-
-## Notas Importantes
-
-- El sistema incluye verificación de disponibilidad para evitar doble reservas
-- Los horarios de atención son de 9:00 a 18:00, de lunes a sábado
-- Los datos de ejemplo incluyen 3 barberos con horarios configurados
-- El panel admin usa autenticación simple (sessionStorage)
+- Accede a `admin.html`
+- Contraseña: `tauros2024secure`
+- **Barberos**: CRUD completo, activar/desactivar
+- **Horarios**: Configurar por día para cada barbero
+- **Citas**: Ver todas con filtros por fecha y barbero
+- **Estadísticas**: Barbero más solicitado, días y horas pico, citas por mes
 
 ## Tecnologías Usadas
-
 - **Frontend**: HTML5, CSS3, JavaScript ES6+
-- **CSS**: TailwindCSS (CDN) + estilos personalizados
-- **Backend**: Supabase (PostgreSQL + API REST)
+- **Backend**: Supabase (PostgreSQL + API REST + Edge Functions)
+- **Correo**: Resend API
 - **Iconos**: Font Awesome 6
 - **Fuentes**: Playfair Display + Poppins (Google Fonts)
-- **Despliegue**: Vercel (estático)
-
-## Admin
-- **Password**: tauros2024secure
+- **Despliegue**: Vercel

@@ -1,19 +1,24 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
+// Lee la API Key de Resend desde las variables de entorno
 const RESEND_KEY = Deno.env.get("RESEND_API_KEY")
 
+// Headers CORS para permitir peticiones desde cualquier origen
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 }
 
 serve(async (req) => {
+  // Responde a preflight CORS
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
   }
 
+  // Recibe los datos de la cita desde el cliente
   const { cliente_email, cliente_nombre, barbero_nombre, fecha, hora, codigo } = await req.json()
 
+  // Envía el correo usando la API de Resend
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -36,7 +41,9 @@ serve(async (req) => {
     })
   })
 
+  // Log para debug
   const data = await res.text()
   console.log('Resend status:', res.status, data)
+
   return new Response(JSON.stringify({ status: res.status, body: data }), { headers: { ...corsHeaders, "Content-Type": "application/json" } })
 })

@@ -2,6 +2,7 @@
 const ADMIN_SUPABASE_URL = 'https://amhtrwrucsgfbkswhttk.supabase.co';
 const ADMIN_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaHRyd3J1Y3NnZmJrc3dodHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NDQxNjMsImV4cCI6MjA5MzQyMDE2M30.uN-1kwj3H_CmRlB51nOhW_7INMoj0Cq-OlNAjwKMWPY';
 
+// Guarda el token de autenticación en sessionStorage o localStorage
 function guardarToken(token) {
   try {
     sessionStorage.setItem('tauros_admin_token', token);
@@ -10,6 +11,7 @@ function guardarToken(token) {
   }
 }
 
+// Obtiene el token de autenticación almacenado
 function obtenerToken() {
   try {
     return sessionStorage.getItem('tauros_admin_token') || localStorage.getItem('tauros_admin_token');
@@ -18,6 +20,7 @@ function obtenerToken() {
   }
 }
 
+// Elimina el token de autenticación de ambos storages
 function eliminarToken() {
   try {
     sessionStorage.removeItem('tauros_admin_token');
@@ -25,6 +28,7 @@ function eliminarToken() {
   localStorage.removeItem('tauros_admin_token');
 }
 
+// Verifica si hay una sesión activa y muestra el panel
 async function verificarAuth() {
   const session = obtenerToken();
   if (!session) return false;
@@ -42,6 +46,7 @@ async function verificarAuth() {
   }
 }
 
+// Autentica al admin con la contraseña mediante Edge Function
 async function login(password) {
   try {
     const response = await fetch(`${ADMIN_SUPABASE_URL}/functions/v1/admin-auth`, {
@@ -69,12 +74,14 @@ async function login(password) {
   }
 }
 
+// Cierra la sesión y regresa a la pantalla de login
 function logout() {
   eliminarToken();
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('admin-panel').classList.remove('active');
 }
 
+// Muestra el panel de administración y carga datos iniciales
 function mostrarPanel() {
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('admin-panel').classList.add('active');
@@ -84,6 +91,7 @@ function mostrarPanel() {
 
 // ── Funciones de datos ──
 
+// Obtiene todos los barberos desde Supabase y los renderiza
 async function cargarBarberos() {
   const { data, error } = await window.supabaseClient
     .from('barberos')
@@ -98,6 +106,7 @@ async function cargarBarberos() {
   return data;
 }
 
+// Crea un nuevo barbero en la base de datos
 async function crearBarbero(datos) {
   const { data, error } = await window.supabaseClient
     .from('barberos')
@@ -112,6 +121,7 @@ async function crearBarbero(datos) {
   return data;
 }
 
+// Actualiza los datos de un barbero existente
 async function actualizarBarbero(id, datos) {
   const { data, error } = await window.supabaseClient
     .from('barberos')
@@ -127,6 +137,7 @@ async function actualizarBarbero(id, datos) {
   return data;
 }
 
+// Activa o desactiva un barbero
 async function toggleBarbero(id, activo) {
   const { error } = await window.supabaseClient
     .from('barberos')
@@ -141,6 +152,7 @@ async function toggleBarbero(id, activo) {
   return true;
 }
 
+// Obtiene los horarios de atención de un barbero
 async function cargarHorarios(barberoId) {
   const { data, error } = await window.supabaseClient
     .from('horarios')
@@ -155,6 +167,7 @@ async function cargarHorarios(barberoId) {
   return data || [];
 }
 
+// Guarda los horarios de atención de un barbero
 async function guardarHorarios(barberoId, horarios) {
   const promesas = horarios.map(h => {
     return window.supabaseClient
@@ -173,6 +186,7 @@ async function guardarHorarios(barberoId, horarios) {
   alert('Horarios guardados correctamente');
 }
 
+// Obtiene las citas con filtros opcionales y las renderiza
 async function cargarCitas(filtros = {}) {
   let query = window.supabaseClient
     .from('citas')
@@ -208,6 +222,7 @@ async function cargarCitas(filtros = {}) {
 
 // ── Funciones de UI ──
 
+// Renderiza la tabla de barberos en el panel
 function renderTabBarberos(barberos) {
   const container = document.getElementById('barberos-list');
   let html = `
@@ -264,6 +279,7 @@ function renderTabBarberos(barberos) {
   container.innerHTML = html;
 }
 
+// Renderiza el editor de horarios por barbero
 function renderTabHorarios() {
   const container = document.getElementById('horarios-content');
   const selectBarbero = document.getElementById('barbero-select');
@@ -309,6 +325,7 @@ function renderTabHorarios() {
   };
 }
 
+// Recoge los valores del formulario y guarda los horarios
 async function guardarHorariosBarbero(barberoId) {
   const dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
   const horarios = dias.map(dia => ({
@@ -321,6 +338,7 @@ async function guardarHorariosBarbero(barberoId) {
   await guardarHorarios(barberoId, horarios);
 }
 
+// Renderiza la tabla de citas con filtros
 function renderTabCitas(citas) {
   const container = document.getElementById('citas-list');
 
@@ -380,17 +398,20 @@ function renderTabCitas(citas) {
   });
 }
 
+// Formatea una fecha al formato local de México
 function formatearFechaAdmin(fechaStr) {
   const fecha = new Date(fechaStr + 'T00:00:00');
   return fecha.toLocaleDateString('es-MX');
 }
 
+// Aplica los filtros de fecha y barbero a la tabla de citas
 function aplicarFiltros() {
   const fecha = document.getElementById('filtro-fecha').value;
   const barberoId = document.getElementById('filtro-barbero').value;
   cargarCitas({ fecha: fecha || null, barberoId: barberoId || null });
 }
 
+// Abre el modal para crear o editar un barbero
 function abrirModal(tipo, datos = null) {
   const modal = document.getElementById('modal');
   const title = document.getElementById('modal-title');
@@ -450,10 +471,12 @@ function abrirModal(tipo, datos = null) {
   modal.classList.add('active');
 }
 
+// Cierra el modal de creación/edición de barbero
 function cerrarModal() {
   document.getElementById('modal').classList.remove('active');
 }
 
+// Guarda o actualiza un barbero según el contexto del modal
 async function guardarBarbero() {
   const nombre = document.getElementById('modal-nombre').value.trim();
   const especialidad = document.getElementById('modal-especialidad').value.trim();
@@ -486,6 +509,7 @@ async function guardarBarbero() {
   }
 }
 
+// Muestra la pestaña seleccionada del panel de administración
 function mostrarTab(tab) {
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
@@ -514,6 +538,7 @@ function mostrarTab(tab) {
 
 // ── Estadísticas ──
 
+// Renderiza la sección de estadísticas con gráficos y métricas
 async function renderEstadisticas() {
   const container = document.getElementById('estadisticas-content');
   container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando estadísticas...</p></div>';
@@ -628,7 +653,9 @@ async function renderEstadisticas() {
   `;
 }
 
+// Obtiene todas las citas con el nombre del barbero para estadísticas
 async function cargarTodasLasCitas() {
+  // Obtiene todas las citas con el nombre del barbero para estadísticas
   const { data, error } = await window.supabaseClient
     .from('citas')
     .select(`
@@ -648,7 +675,9 @@ async function cargarTodasLasCitas() {
   }));
 }
 
+// Calcula todas las métricas de estadísticas: ranking, días, meses, horas
 function calcularEstadisticas(citas, barberos) {
+  // Calcula todas las métricas: ranking barberos, días, meses, horas
   const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
