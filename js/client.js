@@ -265,7 +265,7 @@ async function renderSlots(horario, citasOcupadas) {
     return;
   }
 
-  const slots = generarSlots(horario.hora_inicio, horario.hora_fin, horario.duracion_slot || 30, state.fecha);
+  const slots = generarSlots(horario.hora_inicio, horario.hora_fin, horario.duracion_slot || 60, state.fecha);
   const ocupadas = new Set(citasOcupadas.map(c => {
     const h = c.hora_inicio;
     return typeof h === 'string' ? h.substring(0, 5) : h;
