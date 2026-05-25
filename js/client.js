@@ -33,6 +33,13 @@ function escapeAttr(str) {
   }[char]));
 }
 
+function generarCodigo() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let codigo = 'TAU-';
+  for (let i = 0; i < 4; i++) codigo += chars[Math.floor(Math.random() * chars.length)];
+  return codigo;
+}
+
 // ── Funciones de datos (Supabase) ──
 
 async function cargarSillas() {
@@ -364,6 +371,7 @@ function renderConfirmacion(cita) {
   const clienteNombreSanitized = sanitizeHTML(cita.cliente_nombre || '');
   const clienteEmailSanitized = sanitizeHTML(cita.cliente_email || '');
   const clienteContactoSanitized = sanitizeHTML(cita.cliente_contacto || '');
+  const codigo = sanitizeHTML(cita.codigo_cancelacion || '');
 
   container.innerHTML = `
     <div class="confirmacion-container">
@@ -378,6 +386,12 @@ function renderConfirmacion(cita) {
         <p><span><i class="fas fa-envelope"></i> Email</span> <strong>${clienteEmailSanitized}</strong></p>
         <p><span><i class="fas fa-phone"></i> Contacto</span> <strong>${clienteContactoSanitized}</strong></p>
       </div>
+      ${codigo ? `
+      <div class="codigo-cancelacion-box">
+        <span class="codigo-label">Tu código de cancelación</span>
+        <span class="codigo-value">${codigo}</span>
+        <p class="codigo-msg">Guarda este código para cancelar tu cita</p>
+      </div>` : ''}
       <p style="color: var(--text-muted); margin-bottom: 25px;">
         <i class="fas fa-info-circle"></i> Llega 5 minutos antes de tu hora
       </p>
@@ -612,6 +626,8 @@ async function enviarFormulario(e) {
     return;
   }
 
+  const codigoCancelacion = generarCodigo();
+
   const datos = {
     barbero_id: state.barberoId,
     cliente_nombre: nombre,
@@ -620,7 +636,8 @@ async function enviarFormulario(e) {
     fecha: state.fecha,
     hora_inicio: state.horaInicio,
     hora_fin: state.horaFin,
-    estado: 'confirmada'
+    estado: 'confirmada',
+    codigo_cancelacion: codigoCancelacion
   };
 
   const { data, error } = await guardarCita(datos);
@@ -650,7 +667,8 @@ async function enviarFormulario(e) {
       cliente_nombre: nombre,
       barbero_nombre: state.barberName,
       fecha: state.fecha,
-      hora: state.horaInicio
+      hora: state.horaInicio,
+      codigo: codigoCancelacion
     })
   }).catch(e => console.error('Error enviando correo:', e));
 
@@ -754,6 +772,61 @@ async function cancelarCita(citaId) {
   document.getElementById('btn-volver-cancelar').addEventListener('click', function() {
     modal.remove();
   });
+}
+
+async function cancelarPorCodigo() {
+  const input = document.getElementById('codigo-cancelacion-input');
+  const codigo = input.value.trim().toUpperCase();
+
+  if (!codigo) {
+    mostrarMensajeCancelacion('warning', 'Ingresa tu código de cancelación');
+    return;
+  }
+
+  const { data, error } = await window.supabaseClient
+    .from('citas')
+    .select('*')
+    .eq('codigo_cancelacion', codigo)
+    .eq('estado', 'confirmada')
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error buscando cita:', error);
+    mostrarMensajeCancelacion('error', 'Error al buscar la cita. Intenta de nuevo.');
+    return;
+  }
+
+  if (!data) {
+    mostrarMensajeCancelacion('error', 'Código inválido o la cita ya fue cancelada');
+    return;
+  }
+
+  const confirmar = confirm(`¿Cancelar tu cita con ${data.cliente_nombre} el ${data.fecha} a las ${data.hora_inicio?.substring(0, 5)}?`);
+  if (!confirmar) return;
+
+  const { error: updateError } = await window.supabaseClient
+    .from('citas')
+    .update({ estado: 'cancelada' })
+    .eq('id', data.id);
+
+  if (updateError) {
+    alert('Error al cancelar la cita');
+    return;
+  }
+
+  mostrarMensajeCancelacion('success', 'Cita cancelada correctamente. La hora ha sido liberada.');
+  input.value = '';
+}
+
+function mostrarMensajeCancelacion(tipo, texto) {
+  const msg = document.getElementById('codigo-cancelacion-msg');
+  msg.innerHTML = tipo === 'success'
+    ? `<span style="color: var(--available);"><i class="fas fa-check-circle"></i> ${texto}</span>`
+    : tipo === 'warning'
+    ? `<span style="color: var(--accent);"><i class="fas fa-info-circle"></i> ${texto}</span>`
+    : `<span style="color: var(--danger);"><i class="fas fa-exclamation-circle"></i> ${texto}</span>`;
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 4000);
 }
 
 function toggleNav() {

@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS citas (
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
     estado TEXT DEFAULT 'confirmada',
+    codigo_cancelacion TEXT UNIQUE,
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 

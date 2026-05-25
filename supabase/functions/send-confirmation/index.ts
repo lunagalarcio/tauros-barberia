@@ -12,7 +12,7 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders })
   }
 
-  const { cliente_email, cliente_nombre, barbero_nombre, fecha, hora } = await req.json()
+  const { cliente_email, cliente_nombre, barbero_nombre, fecha, hora, codigo } = await req.json()
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -30,6 +30,7 @@ serve(async (req) => {
         <p><b>Barbero:</b> ${barbero_nombre}</p>
         <p><b>Fecha:</b> ${fecha}</p>
         <p><b>Hora:</b> ${hora}</p>
+        ${codigo ? `<div style="margin:24px 0;padding:20px;background:#fef3c7;border-radius:12px;text-align:center;border:2px dashed #f59e0b"><p style="font-size:0.8rem;color:#92400e;margin:0 0 8px;text-transform:uppercase;letter-spacing:1px">Tu c\u00f3digo de cancelaci\u00f3n</p><p style="font-size:1.8rem;font-weight:700;color:#92400e;letter-spacing:4px;margin:0;font-family:monospace">${codigo}</p><p style="font-size:0.8rem;color:#92400e;margin:8px 0 0">Guarda este c\u00f3digo para cancelar tu cita</p></div>` : ''}
         <p>Te esperamos!</p>
       `
     })

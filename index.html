@@ -306,6 +306,21 @@
     </div>
   </section>
 
+  <!-- Cancelar Cita Section -->
+  <section class="cancelar-section">
+    <div class="container">
+      <h2 class="section-title">Cancelar cita</h2>
+      <p class="section-subtitle">Ingresa tu código de cancelación</p>
+      <div class="cancelar-box">
+        <div class="cancelar-input-group">
+          <input type="text" id="codigo-cancelacion-input" placeholder="Ej: TAU-A3F8" maxlength="8" style="text-transform: uppercase;">
+          <button class="btn-cancelar-cita" onclick="cancelarPorCodigo()">Cancelar cita</button>
+        </div>
+        <p id="codigo-cancelacion-msg" class="cancelar-msg" style="display: none;"></p>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="footer" id="contacto">
     <div class="footer-decoration"></div>
